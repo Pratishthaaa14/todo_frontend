@@ -1,7 +1,7 @@
 // frontend/src/services/api.js
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api/v1';
+const API_URL = 'https://to-do-backend-tawny-gamma.vercel.app/api/v1';
 
 // Create axios instance with default config
 const api = axios.create({
