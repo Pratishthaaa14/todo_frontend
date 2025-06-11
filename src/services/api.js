@@ -1,16 +1,24 @@
 // frontend/src/services/api.js
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+// Force production URL in production environment
+const isProduction = import.meta.env.PROD;
+const BASE_URL = isProduction 
+  ? 'https://todo-backend-p970.onrender.com/'
+  : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/');
+
+console.log('Environment:', import.meta.env.MODE);
+console.log('API Base URL:', BASE_URL);
+console.log('Is Production:', isProduction);
 
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: BASE_URL,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
-  },
-  withCredentials: true
+  }
 });
 
 // Add request interceptor to add auth token
@@ -86,13 +94,13 @@ export const deleteTask = async (id) => {
 
 // Auth API endpoints
 export const login = async (credentials) => {
-  const response = await api.post('/auth/login', credentials);
+  const response = await api.post('api/v1/auth/login', credentials);
   console.log('Login API response:', response);
   return response.data;
 };
 
 export const register = async (userData) => {
-  const response = await api.post('/auth/register', userData);
+  const response = await api.post('api/v1/auth/register', userData);
   return response.data;
 };
 
@@ -110,15 +118,12 @@ export const updateProfile = async (userData) => {
 };
 
 export const forgotPassword = async (email) => {
-  const response = await api.post('/auth/forgot-password', { email });
+  const response = await api.post('api/v1/auth/forgot-password', { email });
   return response.data;
 };
 
-export const resetPassword = async (token, newPassword) => {
-  const response = await axios.post('/auth/reset-password', {
-    token,
-    newPassword
-  });
+export const resetPassword = async (token, password) => {
+  const response = await api.post('api/v1/auth/reset-password', { token, password });
   return response.data;
 };
 
