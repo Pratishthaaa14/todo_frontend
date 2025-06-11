@@ -38,7 +38,9 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     try {
-      const { data, token } = await loginApi(credentials);
+      const response = await loginApi(credentials);
+      console.log('AuthContext login response:', response);
+      const { data, token } = response;
       if (!token) {
         throw new Error('No token received from server');
       }

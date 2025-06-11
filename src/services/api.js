@@ -1,14 +1,16 @@
 // frontend/src/services/api.js
 import axios from 'axios';
 
-const API_URL = 'https://to-do-backend-tawny-gamma.vercel.app/api/v1';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
 
 // Create axios instance with default config
 const api = axios.create({
   baseURL: API_URL,
   headers: {
-    'Content-Type': 'application/json'
-  }
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  },
+  withCredentials: true
 });
 
 // Add request interceptor to add auth token
@@ -25,17 +27,24 @@ api.interceptors.request.use(
   }
 );
 
-// Add response interceptor to handle token expiration
+// Add response interceptor to handle errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // Clear local storage and redirect to login
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      console.error('API Error:', error.response.data);
+      return Promise.reject(error.response.data);
+    } else if (error.request) {
+      // The request was made but no response was received
+      console.error('No response received:', error.request);
+      return Promise.reject({ message: 'No response from server' });
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      console.error('Request setup error:', error.message);
+      return Promise.reject({ message: 'Request setup failed' });
     }
-    return Promise.reject(error);
   }
 );
 
@@ -78,6 +87,7 @@ export const deleteTask = async (id) => {
 // Auth API endpoints
 export const login = async (credentials) => {
   const response = await api.post('/auth/login', credentials);
+  console.log('Login API response:', response);
   return response.data;
 };
 
