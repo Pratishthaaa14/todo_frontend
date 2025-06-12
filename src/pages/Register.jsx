@@ -3,7 +3,6 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Box, Button, TextField, Typography, Container, IconButton, InputAdornment } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { toast } from 'react-toastify';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -81,11 +80,9 @@ const Register = () => {
     try {
       setLoading(true);
       await signup(formData.email, formData.password, formData.name);
-      toast.success('Account created successfully!');
       navigate('/dashboard');
     } catch (err) {
       console.error('Registration error:', err);
-      // Error handling is done in AuthContext
     } finally {
       setLoading(false);
     }

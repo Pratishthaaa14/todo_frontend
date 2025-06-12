@@ -62,12 +62,9 @@ const Login = () => {
     try {
       setLoading(true);
       await login({ email: formData.email, password: formData.password });
-      toast.success('Successfully logged in!');
       navigate('/dashboard');
     } catch (err) {
       console.error('Login error:', err);
-      const errorMessage = err.response?.data?.message || 'Failed to sign in. Please check your credentials.';
-      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
