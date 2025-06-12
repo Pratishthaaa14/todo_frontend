@@ -58,37 +58,37 @@ api.interceptors.response.use(
 
 // Task API endpoints
 export const getTasks = async () => {
-  const response = await api.get('/tasks');
+  const response = await api.get('api/v1/tasks');
   return response.data.data;
 };
 
 export const getTasksByStatus = async (status) => {
-  const response = await api.get(`/tasks/status/${status}`);
+  const response = await api.get(`api/v1/tasks/status/${status}`);
   return response.data.data;
 };
 
 export const getTasksByPriority = async (priority) => {
-  const response = await api.get(`/tasks/priority/${priority}`);
+  const response = await api.get(`api/v1/tasks/priority/${priority}`);
   return response.data.data;
 };
 
 export const getTask = async (id) => {
-  const response = await api.get(`/tasks/${id}`);
+  const response = await api.get(`api/v1/tasks/${id}`);
   return response.data.data;
 };
 
 export const createTask = async (taskData) => {
-  const response = await api.post('/tasks', taskData);
+  const response = await api.post('api/v1/tasks', taskData);
   return response.data.data;
 };
 
 export const updateTask = async (id, taskData) => {
-  const response = await api.put(`/tasks/${id}`, taskData);
+  const response = await api.put(`api/v1/tasks/${id}`, taskData);
   return response.data.data;
 };
 
 export const deleteTask = async (id) => {
-  const response = await api.delete(`/tasks/${id}`);
+  const response = await api.delete(`api/v1/tasks/${id}`);
   return response.data;
 };
 
@@ -105,12 +105,12 @@ export const register = async (userData) => {
 };
 
 export const getProfile = async () => {
-  const response = await api.get('/auth/me');
+  const response = await api.get('api/v1/auth/me');
   return response.data.data;
 };
 
 export const updateProfile = async (userData) => {
-  const response = await api.put('/auth/profile', userData);
+  const response = await api.put('api/v1/auth/profile', userData);
   return {
     data: response.data.data,
     token: response.data.token
@@ -129,7 +129,7 @@ export const resetPassword = async (token, password) => {
 
 // Search API endpoint
 export const searchTasks = async (query) => {
-  const response = await api.get(`/tasks/search?q=${encodeURIComponent(query)}`);
+  const response = await api.get(`api/v1/tasks/search?q=${encodeURIComponent(query)}`);
   return response.data.data;
 };
 
