@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Box, Button, TextField, Typography, Container, IconButton, InputAdornment } from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { Box, Button, TextField, Typography, Container, IconButton, InputAdornment, Paper } from '@mui/material';
+import { Visibility, VisibilityOff, AppRegistration as RegisterIcon } from '@mui/icons-material';
+import { toast } from 'react-toastify';
 
 const Register = () => {
   const [formData, setFormData] = useState({
-    name: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -15,19 +15,12 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { signup } = useAuth();
+  const { register } = useAuth();
   const navigate = useNavigate();
 
   const validateForm = () => {
     const newErrors = {};
     
-    // Name validation
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
-    } else if (formData.name.trim().length < 2) {
-      newErrors.name = 'Name must be at least 2 characters';
-    }
-
     // Email validation
     if (!formData.email) {
       newErrors.email = 'Email is required';
@@ -40,8 +33,6 @@ const Register = () => {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
-    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-      newErrors.password = 'Password must contain at least one uppercase letter, one lowercase letter, and one number';
     }
 
     // Confirm password validation
@@ -79,76 +70,66 @@ const Register = () => {
 
     try {
       setLoading(true);
-      await signup(formData.email, formData.password, formData.name);
-      navigate('/dashboard');
+      await register({ email: formData.email, password: formData.password });
+      toast.success('Registration successful! Please sign in.');
+      navigate('/login');
     } catch (err) {
       console.error('Registration error:', err);
+      toast.error(err.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const togglePasswordVisibility = (field) => {
-    if (field === 'password') {
-      setShowPassword(!showPassword);
-    } else {
-      setShowConfirmPassword(!showConfirmPassword);
-    }
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
   };
 
   return (
-    <Container component="main" maxWidth="xs">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-gray-50 p-4">
       <Box
+        className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md"
         sx={{
-          marginTop: 8,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          bgcolor: 'background.paper',
-          p: 4,
-          borderRadius: 2,
-          boxShadow: 1,
         }}
       >
-        <Typography component="h1" variant="h5" gutterBottom>
+        <Typography component="h1" variant="h4" sx={{ fontWeight: 700, mb: 1, color: '#4A0E70' }}>
           Create Account
         </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-          Join us to manage your tasks efficiently
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 4, textAlign: 'center' }}>
+          Join us to start managing your tasks efficiently
         </Typography>
-        
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1, width: '100%' }}>
+
+        <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%', mt: 1 }}>
           <TextField
-            margin="normal"
-            required
-            fullWidth
-            id="name"
-            label="Full Name"
-            name="name"
-            autoComplete="name"
-            autoFocus
-            value={formData.name}
-            onChange={handleChange}
-            error={!!errors.name}
-            helperText={errors.name}
-            disabled={loading}
-          />
-          <TextField
-            margin="normal"
             required
             fullWidth
             id="email"
             label="Email Address"
             name="email"
             autoComplete="email"
+            autoFocus
             value={formData.email}
             onChange={handleChange}
             error={!!errors.email}
             helperText={errors.email}
             disabled={loading}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 2,
+                '&:hover fieldset': {
+                  borderColor: 'primary.main',
+                },
+              },
+            }}
           />
           <TextField
-            margin="normal"
             required
             fullWidth
             name="password"
@@ -161,13 +142,22 @@ const Register = () => {
             error={!!errors.password}
             helperText={errors.password}
             disabled={loading}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 2,
+                '&:hover fieldset': {
+                  borderColor: 'primary.main',
+                },
+              },
+            }}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
                   <IconButton
                     aria-label="toggle password visibility"
-                    onClick={() => togglePasswordVisibility('password')}
+                    onClick={togglePasswordVisibility}
                     edge="end"
+                    sx={{ color: 'primary.main' }}
                   >
                     {showPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
@@ -176,25 +166,34 @@ const Register = () => {
             }}
           />
           <TextField
-            margin="normal"
             required
             fullWidth
             name="confirmPassword"
             label="Confirm Password"
             type={showConfirmPassword ? 'text' : 'password'}
             id="confirmPassword"
+            autoComplete="new-password"
             value={formData.confirmPassword}
             onChange={handleChange}
             error={!!errors.confirmPassword}
             helperText={errors.confirmPassword}
             disabled={loading}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 2,
+                '&:hover fieldset': {
+                  borderColor: 'primary.main',
+                },
+              },
+            }}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
                   <IconButton
                     aria-label="toggle confirm password visibility"
-                    onClick={() => togglePasswordVisibility('confirm')}
+                    onClick={toggleConfirmPasswordVisibility}
                     edge="end"
+                    sx={{ color: 'primary.main' }}
                   >
                     {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
@@ -202,6 +201,7 @@ const Register = () => {
               ),
             }}
           />
+
           <Button
             type="submit"
             fullWidth
@@ -209,18 +209,19 @@ const Register = () => {
             sx={{ mt: 3, mb: 2, py: 1.5 }}
             disabled={loading}
           >
-            {loading ? 'Creating Account...' : 'Sign Up'}
+            {loading ? 'Registering...' : 'Sign Up'}
           </Button>
-          <Box sx={{ textAlign: 'center' }}>
+
+          <Box sx={{ mt: 2, textAlign: 'center' }}>
             <Link to="/login" style={{ textDecoration: 'none' }}>
-              <Typography variant="body2" color="primary" sx={{ '&:hover': { textDecoration: 'underline' } }}>
+              <Typography variant="body2" color="primary" sx={{ fontWeight: 500, '&:hover': { textDecoration: 'underline', color: '#5B21B6' } }}>
                 Already have an account? Sign In
               </Typography>
             </Link>
           </Box>
         </Box>
       </Box>
-    </Container>
+    </div>
   );
 };
 

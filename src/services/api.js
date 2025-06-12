@@ -133,4 +133,15 @@ export const searchTasks = async (query) => {
   return response.data.data;
 };
 
+// Notification API endpoints
+export const getNotifications = async () => {
+  const response = await api.get('api/v1/notifications');
+  return response.data;
+};
+
+export const markAllNotificationsAsRead = async () => {
+  const response = await api.put('api/v1/notifications/mark-read');
+  return response.data;
+};
+
 export default api;

@@ -75,27 +75,23 @@ const Login = () => {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-gray-50 p-4">
       <Box
+        className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md"
         sx={{
-          marginTop: 8,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          bgcolor: 'background.paper',
-          p: 4,
-          borderRadius: 2,
-          boxShadow: 1,
         }}
       >
-        <Typography component="h1" variant="h5" gutterBottom>
+        <Typography component="h1" variant="h4" sx={{ fontWeight: 700, mb: 1, color: '#4A0E70' }}>
           Welcome Back
         </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-          Sign in to manage your tasks
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 4, textAlign: 'center' }}>
+          Sign in to manage your tasks effectively.
         </Typography>
-        
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1, width: '100%' }}>
+
+        <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%', mt: 1 }}>
           <TextField
             margin="normal"
             required
@@ -146,23 +142,23 @@ const Login = () => {
             sx={{ mt: 3, mb: 2, py: 1.5 }}
             disabled={loading}
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? 'Signing In...' : 'Sign In'}
           </Button>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
             <Link to="/forgot-password" style={{ textDecoration: 'none' }}>
-              <Typography variant="body2" color="primary" sx={{ '&:hover': { textDecoration: 'underline' } }}>
+              <Typography variant="body2" color="primary" sx={{ fontWeight: 500, '&:hover': { textDecoration: 'underline', color: '#5B21B6' } }}>
                 Forgot password?
               </Typography>
             </Link>
             <Link to="/register" style={{ textDecoration: 'none' }}>
-              <Typography variant="body2" color="primary" sx={{ '&:hover': { textDecoration: 'underline' } }}>
+              <Typography variant="body2" color="primary" sx={{ fontWeight: 500, '&:hover': { textDecoration: 'underline', color: '#5B21B6' } }}>
                 Don't have an account? Sign Up
               </Typography>
             </Link>
           </Box>
         </Box>
       </Box>
-    </Container>
+    </div>
   );
 };
 

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Card,
   CardContent,
@@ -8,35 +9,77 @@ import {
   MenuItem,
   Chip,
   Box,
+  Checkbox,
+  Tooltip,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   Button,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem as SelectMenuItem
 } from '@mui/material';
 import {
-  MoreVert as MoreVertIcon,
-  Delete as DeleteIcon,
+  MoreVert as MoreIcon,
   Edit as EditIcon,
-  CheckCircle as CheckCircleIcon,
+  Delete as DeleteIcon,
+  Flag as FlagIcon,
   Schedule as ScheduleIcon,
-  Flag as FlagIcon
+  Description as DescriptionIcon,
 } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { updateTask, deleteTask } from '../../services/api';
 import { toast } from 'react-toastify';
 
-const TaskItem = ({ task, onTaskUpdate, onTaskDelete }) => {
+const priorityColors = {
+  high: {
+    bg: '#FEE2E2', // Light red
+    border: '#FCA5A5', // Medium red
+    text: '#991B1B' // Dark red
+  },
+  medium: {
+    bg: '#FEF3C7', // Light yellow
+    border: '#FCD34D', // Medium yellow
+    text: '#92400E' // Dark yellow
+  },
+  low: {
+    bg: '#DCFCE7', // Light green
+    border: '#86EFAC', // Medium green
+    text: '#166534' // Dark green
+  }
+};
+
+const statusColors = {
+  "pending": "default",
+  "in-progress": "info",
+  "completed": "success",
+};
+
+const TaskItem = ({ task, onEdit }) => {
   const [anchorEl, setAnchorEl] = useState(null);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [editedTask, setEditedTask] = useState(task);
-  const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
+
+  const updateTaskMutation = useMutation({
+    mutationFn: (updatedData) => updateTask(task._id, updatedData),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["tasks"]);
+      toast.success("Task updated successfully");
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || "Failed to update task");
+    },
+  });
+
+  const deleteTaskMutation = useMutation({
+    mutationFn: () => deleteTask(task._id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["tasks"]);
+      toast.success("Task deleted successfully");
+      setDeleteDialogOpen(false);
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || "Failed to delete task");
+    },
+  });
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -46,347 +89,183 @@ const TaskItem = ({ task, onTaskUpdate, onTaskDelete }) => {
     setAnchorEl(null);
   };
 
-  const handleEditClick = () => {
-    setEditedTask(task);
-    setEditDialogOpen(true);
-    handleMenuClose();
+  const handleStatusToggle = () => {
+    const newStatus = task.status === "completed" ? "pending" : "completed";
+    updateTaskMutation.mutate({ status: newStatus });
   };
 
-  const handleDeleteClick = () => {
+  const handleDelete = () => {
+    handleMenuClose();
     setDeleteDialogOpen(true);
-    handleMenuClose();
   };
 
-  const handleStatusChange = async (newStatus) => {
-    try {
-      setLoading(true);
-      const updatedTask = await updateTask(task._id, { ...task, status: newStatus });
-      onTaskUpdate(updatedTask);
-      toast.success(`Task marked as ${newStatus}`);
-    } catch (error) {
-      console.error('Error updating task status:', error);
-      toast.error('Failed to update task status');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleEditSubmit = async () => {
-    try {
-      setLoading(true);
-      const updatedTask = await updateTask(task._id, editedTask);
-      onTaskUpdate(updatedTask);
-      setEditDialogOpen(false);
-      toast.success('Task updated successfully');
-    } catch (error) {
-      console.error('Error updating task:', error);
-      toast.error('Failed to update task');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDeleteConfirm = async () => {
-    try {
-      setLoading(true);
-      await deleteTask(task._id);
-      onTaskDelete(task._id);
-      setDeleteDialogOpen(false);
-      toast.success('Task deleted successfully');
-    } catch (error) {
-      console.error('Error deleting task:', error);
-      toast.error('Failed to delete task');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getPriorityColor = (priority) => {
-    switch (priority) {
-      case 'high':
-        return 'error'; /* Red for high priority */
-      case 'medium':
-        return 'warning'; /* Orange for medium priority */
-      case 'low':
-        return 'success'; /* Green for low priority */
-      default:
-        return 'default';
-    }
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'completed':
-        return 'success'; /* Green for completed */
-      case 'in-progress':
-        return 'info'; /* Blue for in-progress */
-      case 'pending':
-        return 'warning'; /* Yellow/Orange for pending */
-      default:
-        return 'default';
-    }
+  const confirmDelete = () => {
+    deleteTaskMutation.mutate();
   };
 
   return (
     <>
-      <Card 
-        sx={{ 
-          mb: 4,
-          position: 'relative',
-          border: '2px solid',
-          borderColor: 'grey.200',
-          borderRadius: 2,
+      <Card
+        sx={{
+          backgroundColor: priorityColors[task.priority].bg,
+          border: `1px solid ${priorityColors[task.priority].border}`,
+          borderRadius: '16px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+          display: 'flex',
+          flexDirection: 'column',
+          height: '150px',
+          transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
           '&:hover': {
-            boxShadow: 6,
             transform: 'translateY(-2px)',
-            transition: 'all 0.3s ease-in-out',
+            boxShadow: '0 6px 16px rgba(0, 0, 0, 0.1)',
           }
         }}
       >
-        <CardContent>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <Box sx={{ flex: 1 }}>
-              <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
-                {task.title}
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ my: 1 }}>
-                {task.description}
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                <Chip
-                  icon={<ScheduleIcon />}
-                  label={format(new Date(task.dueDate), 'MMM d, yyyy')}
+        <CardContent sx={{ flexGrow: 1, p: 1.5, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 0.5 }}>
+            <Checkbox
+              checked={task.status === "completed"}
+              onChange={handleStatusToggle}
+              color="primary"
+              sx={{
+                p: 0, 
+                mr: 1,
+                color: priorityColors[task.priority].text,
+                '&.Mui-checked': {
+                  color: priorityColors[task.priority].text,
+                }
+              }}
+            />
+            <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <Typography
+                  variant="h6"
+                  component="div"
+                  sx={{
+                    fontWeight: "600",
+                    color: priorityColors[task.priority].text,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    display: '-webkit-box',
+                    WebkitLineClamp: '1',
+                    WebkitBoxOrient: 'vertical',
+                    pr: 1,
+                  }}
+                >
+              {task.title}
+            </Typography>
+                <IconButton
                   size="small"
-                  color={new Date(task.dueDate) < new Date() ? 'error' : 'default'}
-                  variant="outlined"
-                />
-                <Chip
-                  icon={<FlagIcon />}
-                  label={task.priority}
-                  size="small"
-                  color={getPriorityColor(task.priority)}
-                  variant="outlined"
-                />
-                <Chip
-                  label={task.status}
-                  size="small"
-                  color={getStatusColor(task.status)}
-                  variant="outlined"
-                />
+                  onClick={handleMenuOpen}
+                  sx={{ color: priorityColors[task.priority].text, flexShrink: 0 }}
+                >
+                  <MoreIcon />
+                </IconButton>
               </Box>
+              {task.description && (
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: priorityColors[task.priority].text,
+                    opacity: 0.8,
+                    lineHeight: "1.4",
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    display: '-webkit-box',
+                    WebkitLineClamp: '1',
+                    WebkitBoxOrient: 'vertical',
+                    mt: 0.2,
+                  }}
+                >
+              {task.description}
+            </Typography>
+              )}
             </Box>
-            <IconButton onClick={handleMenuOpen} size="small">
-              <MoreVertIcon />
-            </IconButton>
+          </Box>
+
+          <Box className="flex flex-wrap gap-1 mt-auto">
+            <Chip
+              size="small"
+              icon={<FlagIcon fontSize="small" />}
+              label={task.priority.toUpperCase()}
+              sx={{ 
+                borderRadius: '8px',
+                backgroundColor: priorityColors[task.priority].border,
+                color: priorityColors[task.priority].text,
+                '& .MuiChip-icon': {
+                  color: priorityColors[task.priority].text,
+                }
+              }}
+            />
+              <Chip
+                size="small"
+              label={task.status.replace('-', ' ').replace(/\b\w/g, c => c.toUpperCase())}
+              color={statusColors[task.status]}
+              variant="outlined"
+              sx={{ 
+                borderRadius: '8px',
+                borderColor: priorityColors[task.priority].border,
+                color: priorityColors[task.priority].text,
+              }}
+              />
+            {task.dueDate && (
+              <Chip
+                size="small"
+                icon={<ScheduleIcon fontSize="small" />}
+                label={format(new Date(task.dueDate), "MMM d, yyyy")}
+                sx={{ 
+                  borderRadius: '8px',
+                  backgroundColor: priorityColors[task.priority].border,
+                  color: priorityColors[task.priority].text,
+                  '& .MuiChip-icon': {
+                    color: priorityColors[task.priority].text,
+                  }
+                }}
+              />
+            )}
           </Box>
         </CardContent>
       </Card>
 
       {/* Task Menu */}
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleMenuClose}
         PaperProps={{
-          sx: {
-            mt: 1,
-            minWidth: 180,
-            borderRadius: 2
-          }
+          elevation: 2,
+          className: "mt-1",
         }}
       >
-        {task.status !== 'completed' && (
-          <MenuItem 
-            onClick={() => handleStatusChange('completed')}
-            disabled={loading}
-          >
-            <CheckCircleIcon sx={{ mr: 1 }} />
-            Mark as Completed
-          </MenuItem>
-        )}
-        <MenuItem onClick={handleEditClick} disabled={loading}>
-          <EditIcon sx={{ mr: 1 }} />
-          Edit Task
-        </MenuItem>
-        <MenuItem 
-          onClick={handleDeleteClick}
-          disabled={loading}
-          sx={{ color: 'error.main' }}
+        <MenuItem
+          onClick={() => {
+            handleMenuClose();
+            onEdit(task);
+          }}
         >
-          <DeleteIcon sx={{ mr: 1 }} />
-          Delete Task
-        </MenuItem>
-      </Menu>
-
-      {/* Edit Dialog */}
-      <Dialog 
-        open={editDialogOpen} 
-        onClose={() => !loading && setEditDialogOpen(false)}
-        maxWidth="sm"
-        fullWidth
-        PaperProps={{
-          sx: {
-            backgroundColor: '#f5f5f5', /* Light grey background */
-            color: '#333', /* Darker text color */
-            borderRadius: 2,
-            border: '1px solid #ddd', /* Subtle border */
-          },
-        }}
-      >
-        <DialogTitle sx={{ color: '#333', fontWeight: 'bold' }}>Edit Task</DialogTitle>
-        <DialogContent sx={{ color: '#555' }}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
-            <TextField
-              label="Title"
-              value={editedTask.title}
-              onChange={(e) => setEditedTask({ ...editedTask, title: e.target.value })}
-              fullWidth
-              disabled={loading}
-              sx={{
-                '& .MuiInputBase-input': { color: '#333' }, // Input text color
-                '& .MuiInputLabel-root': { color: '#555' }, // Label color
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': { borderColor: '#bbb' }, // Default border
-                  '&:hover fieldset': { borderColor: '#999' }, // Hover border
-                  '&.Mui-focused fieldset': { borderColor: '#673ab7' }, // Focused border (purple)
-                },
-              }}
-            />
-            <TextField
-              label="Description"
-              value={editedTask.description}
-              onChange={(e) => setEditedTask({ ...editedTask, description: e.target.value })}
-              multiline
-              rows={3}
-              fullWidth
-              disabled={loading}
-              sx={{
-                '& .MuiInputBase-input': { color: '#333' },
-                '& .MuiInputLabel-root': { color: '#555' },
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': { borderColor: '#bbb' },
-                  '&:hover fieldset': { borderColor: '#999' },
-                  '&.Mui-focused fieldset': { borderColor: '#673ab7' },
-                },
-              }}
-            />
-            <TextField
-              label="Due Date"
-              type="date"
-              value={format(new Date(editedTask.dueDate), "yyyy-MM-dd")}
-              onChange={(e) => setEditedTask({ ...editedTask, dueDate: new Date(e.target.value) })}
-              fullWidth
-              disabled={loading}
-              InputLabelProps={{ shrink: true }}
-              sx={{
-                '& .MuiInputBase-input': { color: '#333' },
-                '& .MuiInputLabel-root': { color: '#555' },
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': { borderColor: '#bbb' },
-                  '&:hover fieldset': { borderColor: '#999' },
-                  '&.Mui-focused fieldset': { borderColor: '#673ab7' },
-                },
-              }}
-            />
-            <FormControl fullWidth disabled={loading} sx={{
-              '& .MuiInputLabel-root': { color: '#555' },
-              '& .MuiOutlinedInput-root': {
-                '& fieldset': { borderColor: '#bbb' },
-                '&:hover fieldset': { borderColor: '#999' },
-                '&.Mui-focused fieldset': { borderColor: '#673ab7' },
-              },
-            }}>
-              <InputLabel>Priority</InputLabel>
-              <Select
-                value={editedTask.priority}
-                label="Priority"
-                onChange={(e) => setEditedTask({ ...editedTask, priority: e.target.value })}
-                sx={{ '& .MuiInputBase-input': { color: '#333' } }}
-              >
-                <SelectMenuItem value="high">High</SelectMenuItem>
-                <SelectMenuItem value="medium">Medium</SelectMenuItem>
-                <SelectMenuItem value="low">Low</SelectMenuItem>
-              </Select>
-            </FormControl>
-            <FormControl fullWidth disabled={loading} sx={{
-              '& .MuiInputLabel-root': { color: '#555' },
-              '& .MuiOutlinedInput-root': {
-                '& fieldset': { borderColor: '#bbb' },
-                '&:hover fieldset': { borderColor: '#999' },
-                '&.Mui-focused fieldset': { borderColor: '#673ab7' },
-              },
-            }}>
-              <InputLabel>Status</InputLabel>
-              <Select
-                value={editedTask.status}
-                label="Status"
-                onChange={(e) => setEditedTask({ ...editedTask, status: e.target.value })}
-                sx={{ '& .MuiInputBase-input': { color: '#333' } }}
-              >
-                <SelectMenuItem value="pending">Pending</SelectMenuItem>
-                <SelectMenuItem value="in-progress">In Progress</SelectMenuItem>
-                <SelectMenuItem value="completed">Completed</SelectMenuItem>
-              </Select>
-            </FormControl>
-          </Box>
-        </DialogContent>
-        <DialogActions sx={{ pr: 3, pb: 2 }}>
-          <Button 
-            onClick={() => setEditDialogOpen(false)} 
-            disabled={loading}
-            sx={{ color: '#555', '&:hover': { backgroundColor: '#e0e0e0' } }}
-          >
-            Cancel
-          </Button>
-          <Button 
-            onClick={handleEditSubmit} 
-            variant="contained" 
-            disabled={loading}
-            sx={{ 
-              backgroundColor: '#673ab7', // Purple
-              '&:hover': { backgroundColor: '#5e35b1' }, // Darker purple on hover
-            }}
-          >
-            {loading ? 'Saving...' : 'Save Changes'}
-          </Button>
-        </DialogActions>
-      </Dialog>
+          <EditIcon fontSize="small" className="mr-2" />
+            Edit
+          </MenuItem>
+        <MenuItem onClick={handleDelete} className="text-red-600">
+          <DeleteIcon fontSize="small" className="mr-2" />
+            Delete
+          </MenuItem>
+        </Menu>
 
       {/* Delete Confirmation Dialog */}
       <Dialog
         open={deleteDialogOpen}
-        onClose={() => !loading && setDeleteDialogOpen(false)}
-        PaperProps={{
-          sx: {
-            backgroundColor: '#f5f5f5', /* Light grey background */
-            color: '#333', /* Darker text color */
-            borderRadius: 2,
-            border: '1px solid #ddd', /* Subtle border */
-          },
-        }}
+        onClose={() => setDeleteDialogOpen(false)}
+        maxWidth="xs"
+        fullWidth
       >
-        <DialogTitle sx={{ color: '#333', fontWeight: 'bold' }}>Delete Task</DialogTitle>
-        <DialogContent sx={{ color: '#555' }}>
-          <Typography>
-            Are you sure you want to delete this task? This action cannot be undone.
-          </Typography>
+        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogContent>
+          <Typography>Are you sure you want to delete this task?</Typography>
         </DialogContent>
-        <DialogActions sx={{ pr: 3, pb: 2 }}>
-          <Button 
-            onClick={() => setDeleteDialogOpen(false)} 
-            disabled={loading}
-            sx={{ color: '#555', '&:hover': { backgroundColor: '#e0e0e0' } }}
-          >
-            Cancel
-          </Button>
-          <Button 
-            onClick={handleDeleteConfirm} 
-            color="error" 
-            variant="contained"
-            disabled={loading}
-          >
-            {loading ? 'Deleting...' : 'Delete'}
-          </Button>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button onClick={confirmDelete} color="error">Delete</Button>
         </DialogActions>
       </Dialog>
     </>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Box, Button, TextField, Typography, Container, Alert } from '@mui/material';
+import { toast } from 'react-toastify';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -12,16 +13,21 @@ const ForgotPassword = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    if (!email) {
+      toast.error('Please enter your email.');
+      return;
+    }
     try {
       setMessage('');
       setError('');
       setLoading(true);
       await resetPassword(email);
       setMessage('Check your inbox for further instructions');
+      toast.success('Password reset link sent. Please check your email.');
     } catch (err) {
       setError('Failed to reset password. ' + err.message);
       console.error('Password reset error:', err);
+      toast.error(err.message || 'Failed to send password reset link.');
     } finally {
       setLoading(false);
     }

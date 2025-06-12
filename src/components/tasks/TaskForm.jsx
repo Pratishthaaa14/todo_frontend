@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -13,10 +13,10 @@ import {
   Box,
   Alert
 } from '@mui/material';
-import { createTask } from '../../services/api';
+import { createTask, updateTask } from '../../services/api';
 import { toast } from 'react-toastify';
 
-const TaskForm = ({ open, onClose, onTaskCreated }) => {
+const TaskForm = ({ open, onClose, onTaskCreated, taskToEdit, setTaskToEdit }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
@@ -26,6 +26,26 @@ const TaskForm = ({ open, onClose, onTaskCreated }) => {
     status: 'pending',
     dueDate: ''
   });
+
+  useEffect(() => {
+    if (taskToEdit) {
+      setFormData({
+        title: taskToEdit.title || '',
+        description: taskToEdit.description || '',
+        priority: taskToEdit.priority || 'medium',
+        status: taskToEdit.status || 'pending',
+        dueDate: taskToEdit.dueDate ? taskToEdit.dueDate.substring(0, 10) : ''
+      });
+    } else {
+      setFormData({
+        title: '',
+        description: '',
+        priority: 'medium',
+        status: 'pending',
+        dueDate: ''
+      });
+    }
+  }, [taskToEdit, open]); // Include open as a dependency to reset form when it opens for a new task
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -44,26 +64,28 @@ const TaskForm = ({ open, onClose, onTaskCreated }) => {
       if (!formData.title.trim()) throw new Error('Title is required');
       if (!formData.dueDate) throw new Error('Due date is required');
 
-      const newTask = await createTask({
+      const taskData = {
         ...formData,
         dueDate: new Date(formData.dueDate).toISOString()
-      });
+      };
 
-      setFormData({
-        title: '',
-        description: '',
-        priority: 'medium',
-        status: 'pending',
-        dueDate: ''
-      });
+      let resultTask;
+      if (taskToEdit) {
+        resultTask = await updateTask(taskToEdit._id, taskData);
+        toast.success('Task updated successfully');
+      } else {
+        resultTask = await createTask(taskData);
+        toast.success('Task created successfully');
+      }
 
-      onTaskCreated(newTask);
+      onTaskCreated(resultTask);
       onClose();
-      toast.success('Task created successfully');
+      setTaskToEdit(null); // Clear editing task after creation/update
+
     } catch (err) {
-      console.error('Error creating task:', err);
-      setError(err.message || 'Failed to create task');
-      toast.error(err.message || 'Failed to create task');
+      console.error(taskToEdit ? 'Error updating task:' : 'Error creating task:', err);
+      setError(err.message || (taskToEdit ? 'Failed to update task' : 'Failed to create task'));
+      toast.error(err.message || (taskToEdit ? 'Failed to update task' : 'Failed to create task'));
     } finally {
       setLoading(false);
     }
@@ -79,6 +101,7 @@ const TaskForm = ({ open, onClose, onTaskCreated }) => {
         dueDate: ''
       });
       setError(null);
+      setTaskToEdit(null); // Clear editing task on close
       onClose();
     }
   };
@@ -89,61 +112,68 @@ const TaskForm = ({ open, onClose, onTaskCreated }) => {
       onClose={handleClose}
       maxWidth="sm"
       fullWidth
+      disablePortal={false}
       PaperProps={{
         sx: {
           borderRadius: 2,
-          bgcolor: '#F5F5F5', // light grey
-          color: 'black',
-          border: '1px solid #CCCCCC' // lighter grey border
+          bgcolor: 'white', // White background
+          color: '#333', // Darker text color
+          border: '1px solid #e0e0e0', // Light grey border
+          zIndex: 1301,
+          boxShadow: '0 8px 24px rgba(0,0,0,0.12)' // Subtle shadow
         }
       }}
     >
       <form onSubmit={handleSubmit}>
-        <DialogTitle sx={{ fontWeight: 'bold', color: 'black' }}>
-          Create New Task
+        <DialogTitle sx={{ fontWeight: 'bold', color: '#333' }}>
+          {taskToEdit ? 'Edit Task' : 'Create New Task'}
         </DialogTitle>
 
         <DialogContent>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
-            {error && (
-              <Alert severity="error" sx={{ mb: 2, bgcolor: '#EF9A9A', color: 'black' }}>
-                {error}
-              </Alert>
-            )}
+      {error && (
+              <Alert severity="error" sx={{ mb: 2, bgcolor: '#ffeded', color: '#d32f2f', border: '1px solid #d32f2f' }}>
+          {error}
+        </Alert>
+      )}
 
-            <TextField
-              label="Title"
+      <TextField
+        label="Title"
               name="title"
               value={formData.title}
               onChange={handleChange}
-              required
+        required
               fullWidth
-              disabled={loading}
+        disabled={loading}
               error={error && !formData.title.trim()}
               helperText={error && !formData.title.trim() ? 'Title is required' : ''}
-              InputLabelProps={{ sx: { color: 'rgba(0, 0, 0, 0.6)' } }}
+              InputLabelProps={{ sx: { color: '#555' } }}
               InputProps={{
                 sx: {
-                  color: 'black',
-                  '& fieldset': { borderColor: '#9E9E9E' },
+                  color: '#333',
+                  '& fieldset': { borderColor: '#bbb' },
+                  '&:hover fieldset': { borderColor: '#999' },
+                  '&.Mui-focused fieldset': { borderColor: '#673ab7' }, // Purple focus
                 }
               }}
-            />
+      />
 
-            <TextField
-              label="Description"
+      <TextField
+        label="Description"
               name="description"
               value={formData.description}
               onChange={handleChange}
-              multiline
-              rows={3}
+        multiline
+        rows={3}
               fullWidth
               disabled={loading}
-              InputLabelProps={{ sx: { color: 'rgba(0, 0, 0, 0.6)' } }}
+              InputLabelProps={{ sx: { color: '#555' } }}
               InputProps={{
                 sx: {
-                  color: 'black',
-                  '& fieldset': { borderColor: '#9E9E9E' },
+                  color: '#333',
+                  '& fieldset': { borderColor: '#bbb' },
+                  '&:hover fieldset': { borderColor: '#999' },
+                  '&.Mui-focused fieldset': { borderColor: '#673ab7' },
                 }
               }}
             />
@@ -156,53 +186,67 @@ const TaskForm = ({ open, onClose, onTaskCreated }) => {
               onChange={handleChange}
               required
               fullWidth
-              disabled={loading}
+        disabled={loading}
               error={error && !formData.dueDate}
               helperText={error && !formData.dueDate ? 'Due date is required' : ''}
               InputLabelProps={{ 
                 shrink: true, 
-                sx: { color: 'rgba(0, 0, 0, 0.6)' } 
+                sx: { color: '#555' } 
               }}
               InputProps={{
                 sx: {
-                  color: 'black',
-                  '& fieldset': { borderColor: '#9E9E9E' },
+                  color: '#333',
+                  '& fieldset': { borderColor: '#bbb' },
+                  '&:hover fieldset': { borderColor: '#999' },
+                  '&.Mui-focused fieldset': { borderColor: '#673ab7' },
                 }
               }}
-            />
+      />
 
             <FormControl fullWidth disabled={loading}>
-              <InputLabel sx={{ color: 'rgba(0, 0, 0, 0.6)' }}>Priority</InputLabel>
-              <Select
+              <InputLabel sx={{ color: '#555' }}>Priority</InputLabel>
+        <Select
                 name="priority"
                 value={formData.priority}
                 onChange={handleChange}
-                label="Priority"
+          label="Priority"
                 sx={{
-                  color: 'black',
+                  color: '#333',
                   '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#9E9E9E',
-                  }
+                    borderColor: '#bbb',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#999',
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#673ab7',
+                  },
                 }}
               >
                 <MenuItem value="high">High</MenuItem>
                 <MenuItem value="medium">Medium</MenuItem>
-                <MenuItem value="low">Low</MenuItem>
-              </Select>
-            </FormControl>
+          <MenuItem value="low">Low</MenuItem>
+        </Select>
+      </FormControl>
 
             <FormControl fullWidth disabled={loading}>
-              <InputLabel sx={{ color: 'rgba(0, 0, 0, 0.6)' }}>Status</InputLabel>
+              <InputLabel sx={{ color: '#555' }}>Status</InputLabel>
               <Select
                 name="status"
                 value={formData.status}
                 onChange={handleChange}
                 label="Status"
                 sx={{
-                  color: 'black',
+                  color: '#333',
                   '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#9E9E9E',
-                  }
+                    borderColor: '#bbb',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#999',
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#673ab7',
+                  },
                 }}
               >
                 <MenuItem value="pending">Pending</MenuItem>
@@ -216,25 +260,25 @@ const TaskForm = ({ open, onClose, onTaskCreated }) => {
         <DialogActions>
           <Button 
             onClick={handleClose} 
-            disabled={loading}
-            sx={{ color: 'rgba(0, 0, 0, 0.6)' }}
+        disabled={loading}
+            sx={{ color: '#555', '&:hover': { backgroundColor: '#e0e0e0' } }}
           >
             Cancel
           </Button>
-          <Button 
-            type="submit" 
-            variant="contained" 
-            disabled={loading}
+      <Button
+        type="submit"
+        variant="contained"
+        disabled={loading}
             sx={{ 
-              bgcolor: '#9E9E9E',
-              color: 'black',
+              bgcolor: '#673ab7', // Purple background for Create Task button
+              color: 'white',
               '&:hover': {
-                bgcolor: '#CCCCCC',
+                bgcolor: '#5e35b1', // Darker purple on hover
               }
             }}
-          >
+      >
             {loading ? 'Creating...' : 'Create Task'}
-          </Button>
+      </Button>
         </DialogActions>
       </form>
     </Dialog>
