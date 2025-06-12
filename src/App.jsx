@@ -12,8 +12,24 @@ import 'react-toastify/dist/ReactToastify.css';
 
 // Protected Route wrapper
 const ProtectedRoute = ({ children }) => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return <div>Loading...</div>; // Or your loading component
+  }
+  
   return user ? children : <Navigate to="/login" replace />;
+};
+
+// Public Route wrapper (redirects to dashboard if already logged in)
+const PublicRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return <div>Loading...</div>; // Or your loading component
+  }
+  
+  return !user ? children : <Navigate to="/dashboard" replace />;
 };
 
 function App() {
@@ -22,9 +38,21 @@ function App() {
       <ToastContainer />
       <Routes>
         {/* Public Routes */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/login" element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        } />
+        <Route path="/register" element={
+          <PublicRoute>
+            <Register />
+          </PublicRoute>
+        } />
+        <Route path="/forgot-password" element={
+          <PublicRoute>
+            <ForgotPassword />
+          </PublicRoute>
+        } />
 
         {/* Protected Routes */}
         <Route
@@ -40,7 +68,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Route>
 
-        {/* Fallback */}
+        {/* Fallback - redirect to login */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </ErrorBoundary>
