@@ -20,17 +20,28 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const initializeAuth = async () => {
       const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          const userData = await getProfileApi();
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const userData = await getProfileApi();
+        if (userData) {
           setUser(userData);
-        } catch (error) {
-          console.error('Error fetching user profile:', error);
+        } else {
+          // If no user data is returned, clear the token
           localStorage.removeItem('token');
           setUser(null);
         }
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+        // Clear invalid token
+        localStorage.removeItem('token');
+        setUser(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     initializeAuth();
@@ -39,13 +50,13 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     try {
       const response = await loginApi(credentials);
-      console.log('AuthContext login response:', response);
       const { data, token } = response;
       if (!token) {
         throw new Error('No token received from server');
       }
       localStorage.setItem('token', token);
       setUser(data);
+      toast.success('Successfully logged in!');
       return data;
     } catch (error) {
       console.error('Login error:', error);
@@ -62,6 +73,7 @@ export const AuthProvider = ({ children }) => {
       }
       localStorage.setItem('token', token);
       setUser(data);
+      toast.success('Account created successfully!');
       return data;
     } catch (error) {
       console.error('Registration error:', error);
@@ -83,6 +95,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('token', token);
       }
       setUser(data);
+      toast.success('Profile updated successfully');
       return data;
     } catch (error) {
       console.error('Profile update error:', error);
@@ -100,9 +113,13 @@ export const AuthProvider = ({ children }) => {
     updateProfile,
   };
 
+  if (loading) {
+    return <div>Loading...</div>; // Or your loading component
+  }
+
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 }; 
