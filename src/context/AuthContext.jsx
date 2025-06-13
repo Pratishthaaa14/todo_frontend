@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { login as loginApi, register as registerApi, getProfile as getProfileApi, updateProfile as updateProfileApi } from '../services/api';
+import { login as loginApi, register as registerApi, getProfile as getProfileApi, updateProfile as updateProfileApi, forgotPassword as forgotPasswordApi } from '../services/api';
 import { toast } from 'react-toastify';
 
 const AuthContext = createContext();
@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
         return;
       }
 
-      try {
+    try {
         const userData = await getProfileApi();
         if (userData) {
           setUser(userData);
@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
           localStorage.removeItem('token');
           setUser(null);
         }
-      } catch (error) {
+    } catch (error) {
         console.error('Error fetching user profile:', error);
         // Clear invalid token
         localStorage.removeItem('token');
@@ -104,6 +104,15 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const resetPassword = async (email) => {
+    try {
+      await forgotPasswordApi(email);
+    } catch (error) {
+      console.error('Error in resetPassword (AuthContext):', error);
+      throw error;
+    }
+  };
+
   const value = {
     user,
     loading,
@@ -111,6 +120,7 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     updateProfile,
+    resetPassword,
   };
 
   if (loading) {

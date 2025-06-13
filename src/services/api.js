@@ -144,4 +144,9 @@ export const markAllNotificationsAsRead = async () => {
   return response.data;
 };
 
+export const sendInvitation = async (inviteData) => {
+  const response = await api.post('api/v1/invitations/send', inviteData);
+  return response.data;
+};
+
 export default api;

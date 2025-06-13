@@ -36,8 +36,8 @@ const TaskList = ({ onEditTask, searchQuery, statusFilter, priorityFilter, sortB
       case "dueDate":
         return new Date(a.dueDate) - new Date(b.dueDate);
       case "priority":
-        const priorityOrder = { high: 3, medium: 2, low: 1 };
-        return priorityOrder[b.priority] - priorityOrder[a.priority];
+      const priorityOrder = { high: 3, medium: 2, low: 1 };
+      return priorityOrder[b.priority] - priorityOrder[a.priority];
       default:
         return new Date(b.createdAt) - new Date(a.createdAt);
     }
@@ -70,13 +70,13 @@ const TaskList = ({ onEditTask, searchQuery, statusFilter, priorityFilter, sortB
             {searchQuery || statusFilter !== "all" || priorityFilter !== "all"
               ? "Try adjusting your filters"
               : "Create a new task to get started"}
-          </Typography>
+      </Typography>
         </div>
-      ) : (
+            ) : (
         sortedTasks?.map((task) => (
           <TaskItem key={task._id} task={task} onEdit={onEditTask} />
         ))
-      )}
+            )}
     </div>
   );
 };

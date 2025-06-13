@@ -4,6 +4,8 @@ import { fetchNotifications, markAllNotificationsAsRead } from '../api/notificat
 import { toast } from 'react-toastify';
 import SearchIcon from '@mui/icons-material/Search';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import { Avatar } from '@mui/material';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -39,28 +41,30 @@ const Header = ({ searchQuery, setSearchQuery }) => {
     <header className="bg-white shadow-sm sticky top-0 z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
         <div className="flex items-center">
-          <Typography variant="h5" sx={{ fontWeight: 600, color: '#4A0E70' }}>ToDo App</Typography>
+          <Typography variant="h5" sx={{ fontWeight: 600, color: '#EF4444' }}>Dashboard</Typography>
         </div>
         <div className="flex items-center gap-4">
-          <div className="relative">
+          <div className="relative flex items-center bg-gray-50 rounded-full px-4 py-2 shadow-inner border border-gray-200">
             <input
               type="text"
-              placeholder="Search tasks..."
+              placeholder="Search your task here..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-purple-300 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 ease-in-out"
+              className="bg-transparent outline-none flex-grow text-gray-700 placeholder-gray-400 pr-2"
             />
-            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#5B0E9D]" />
+            <button className="p-2 bg-red-500 rounded-full text-white hover:bg-red-600 transition-colors duration-200">
+              <SearchIcon sx={{ fontSize: 20 }} />
+            </button>
           </div>
           <div className="flex items-center gap-2">
             <div ref={notificationRef} className="relative">
               <button
                 onClick={() => setNotificationsDropdownOpen(!notificationsDropdownOpen)}
-                className="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors relative"
+                className="p-2 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition-colors relative"
               >
                 <NotificationsIcon />
                 {unreadCount > 0 && (
-                  <span className="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
+                  <span className="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-purple-600 rounded-full">
                     {unreadCount}
                   </span>
                 )}
@@ -96,6 +100,14 @@ const Header = ({ searchQuery, setSearchQuery }) => {
                 </div>
               )}
             </div>
+            <button className="p-2 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition-colors duration-200">
+              <CalendarMonthIcon />
+            </button>
+            <div className="text-sm text-gray-600 flex flex-col items-end">
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>Tuesday</Typography>
+              <Typography variant="caption" color="text.secondary" sx={{ color: '#3B82F6' }}>20/06/2023</Typography>
+            </div>
+            <Avatar sx={{ bgcolor: '#EDE9FE', color: '#7E22CE', fontWeight: 'bold' }}>V</Avatar>
           </div>
         </div>
       </div>
