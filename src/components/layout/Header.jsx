@@ -18,7 +18,7 @@ import {
   getNotifications,
   markAllNotificationsAsRead,
 } from "../../services/api";
-import { Typography, InputBase, IconButton, Paper } from "@mui/material";
+import { Typography, InputBase, IconButton, Paper, Button } from "@mui/material";
 
 const Header = ({ searchQuery, setSearchQuery }) => {
   const { user, logout } = useAuth();
@@ -199,66 +199,74 @@ const Header = ({ searchQuery, setSearchQuery }) => {
               >
                 <NotificationsIcon sx={{ fontSize: 24 }} />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-2 -right-2 h-6 w-6 text-xs bg-[#EF4444] text-white rounded-full flex items-center justify-center animate-bounce border-2 border-white">
+                  <span className="absolute top-[-5px] right-[-5px] bg-[#EF4444] text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                     {unreadCount}
                   </span>
                 )}
               </button>
 
               {notificationsDropdownOpen && (
-                <div className="absolute right-0 mt-3 w-72 bg-[#FF6767] shadow-md rounded-lg text-violet-100 border border-indigo-600 z-50 overflow-hidden">
-                  <div className="p-4 border-b border-indigo-700 font-semibold text-lg">
+                <Paper
+                  className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl z-10 p-4 transform transition-all duration-300 ease-out origin-top-right"
+                  style={{ opacity: notificationsDropdownOpen ? 1 : 0, transform: notificationsDropdownOpen ? 'scale(1)' : 'scale(0.95)' }}
+                >
+                  <Typography
+                    variant="h6"
+                    sx={{ fontWeight: "bold", mb: 2, color: "#333" }}
+                  >
                     Notifications
-                  </div>
+                  </Typography>
                   {isLoading ? (
-                    <div className="p-4 text-center text-sm">
+                    <Typography sx={{ textAlign: "center", py: 2 }}>
                       Loading notifications...
-                    </div>
+                    </Typography>
                   ) : error ? (
-                    <div className="p-4 text-center text-sm text-red-300">
-                      Failed to load notifications.
-                    </div>
-                  ) : notifications.length === 0 ? (
-                    <div className="p-4 text-center text-sm text-purple-200">
-                      No new notifications.
-                    </div>
-                  ) : (
-                    <div className="max-h-60 overflow-y-auto">
-                      {notifications.map((notif) => (
-                        <div
-                          key={notif.id || notif._id}
-                          className={`px-4 py-3 border-b border-indigo-700 last:border-b-0 text-sm ${
-                            notif.read
-                              ? "bg-indigo-800 opacity-75"
-                              : "bg-indigo-700 hover:bg-indigo-600"
-                          }`}
-                        >
-                          <Typography
-                            variant="body2"
-                            sx={{ color: notif.read ? "#a78bfa" : "white" }}
-                          >
-                            {notif.message}
-                          </Typography>
-                          <Typography
-                            variant="caption"
-                            sx={{ color: "#c4b5fd", fontSize: "0.75rem" }}
-                          >
-                            {new Date(notif.createdAt).toLocaleString()}
-                          </Typography>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {notifications.length > 0 && (
-                    <button
-                      onClick={handleMarkAllAsRead}
-                      className="w-full text-center py-2 px-4 bg-indigo-800 hover:bg-indigo-700 text-purple-200 text-sm font-semibold flex items-center justify-center gap-2 border-t border-indigo-700"
+                    <Typography
+                      color="error"
+                      sx={{ textAlign: "center", py: 2 }}
                     >
-                      <CheckCircleOutlineIcon fontSize="small" /> Mark all as
-                      read
-                    </button>
+                      Error loading notifications.
+                    </Typography>
+                  ) : notifications.length === 0 ? (
+                    <Typography sx={{ textAlign: "center", py: 2 }}>
+                      No new notifications.
+                    </Typography>
+                  ) : (
+                    <>
+                      <ul className="space-y-2 max-h-60 overflow-y-auto pr-2">
+                        {notifications.map((notif) => (
+                          <li
+                            key={notif._id}
+                            className={`p-3 rounded-lg ${notif.read ? "bg-gray-100 text-gray-600" : "bg-red-50 text-[#EF4444] font-medium"}
+                            ${notif.read ? "" : "hover:bg-red-100"}
+                            transition-colors duration-200 cursor-pointer
+                          `}
+                          // Add onClick to mark as read if needed
+                          // onClick={() => handleMarkAsRead(notif._id)}
+                          >
+                            <Typography variant="body2">
+                              <span className="font-bold">{notif.title}: </span>
+                              {notif.message}
+                            </Typography>
+                            <Typography variant="caption" color="textSecondary">
+                              {new Date(notif.createdAt).toLocaleString()}
+                            </Typography>
+                          </li>
+                        ))}
+                      </ul>
+                      {unreadCount > 0 && (
+                        <Button
+                          onClick={handleMarkAllAsRead}
+                          variant="contained"
+                          fullWidth
+                          sx={{ mt: 2, bgcolor: "#FF6767", "&:hover": { bgcolor: "#DC2626" } }}
+                        >
+                          Mark All as Read
+                        </Button>
+                      )}
+                    </>
                   )}
-                </div>
+                </Paper>
               )}
             </div>
 

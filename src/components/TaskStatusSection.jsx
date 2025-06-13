@@ -56,7 +56,7 @@ const TaskStatusSection = ({ tasks }) => {
               }}
             >
               <Typography variant="h6" component="div" color="text.secondary" sx={{ fontWeight: 600 }}>
-                {`${completedPercentage}%`}
+                {`${completedPercentage || 0}%`}
               </Typography>
             </Box>
           </Box>
@@ -88,7 +88,7 @@ const TaskStatusSection = ({ tasks }) => {
               }}
             >
               <Typography variant="h6" component="div" color="text.secondary" sx={{ fontWeight: 600 }}>
-                {`${inProgressPercentage}%`}
+                {`${inProgressPercentage || 0}%`}
               </Typography>
             </Box>
           </Box>
@@ -120,7 +120,7 @@ const TaskStatusSection = ({ tasks }) => {
               }}
             >
               <Typography variant="h6" component="div" color="text.secondary" sx={{ fontWeight: 600 }}>
-                {`${notStartedPercentage}%`}
+                {`${notStartedPercentage || 0}%`}
               </Typography>
             </Box>
           </Box>

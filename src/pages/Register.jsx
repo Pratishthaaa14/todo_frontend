@@ -8,6 +8,7 @@ import backgroundImage from '../assets/bg.jpg'; // Import the local image
 
 const Register = () => {
   const [formData, setFormData] = useState({
+    name: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -22,6 +23,11 @@ const Register = () => {
   const validateForm = () => {
     const newErrors = {};
     
+    // Name validation
+    if (!formData.name) {
+      newErrors.name = 'Name is required';
+    }
+
     // Email validation
     if (!formData.email) {
       newErrors.email = 'Email is required';
@@ -71,7 +77,7 @@ const Register = () => {
 
     try {
       setLoading(true);
-      await register({ email: formData.email, password: formData.password });
+      await register({ name: formData.name, email: formData.email, password: formData.password });
       toast.success('Registration successful! Please sign in.');
       navigate('/login');
     } catch (err) {
@@ -107,11 +113,39 @@ const Register = () => {
             margin="normal"
             required
             fullWidth
+            id="name"
+            placeholder="Enter your Name"
+            name="name"
+            autoComplete="name"
+            autoFocus
+            value={formData.name}
+            onChange={handleChange}
+            error={!!errors.name}
+            helperText={errors.name}
+            disabled={loading}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <PersonOutlineIcon sx={{ color: '#888' }} />
+                </InputAdornment>
+              ),
+              sx: {
+                borderRadius: '8px',
+                backgroundColor: '#F9FAFB',
+                '& .MuiOutlinedInput-notchedOutline': { borderColor: '#E5E7EB !important' },
+                '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#D1D5DB !important' },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#6B7280 !important' },
+              }
+            }}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
             id="email"
             placeholder="Enter Username or Email"
             name="email"
             autoComplete="email"
-            autoFocus
             value={formData.email}
             onChange={handleChange}
             error={!!errors.email}

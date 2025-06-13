@@ -91,6 +91,7 @@ const Sidebar = ({ user, logout, location, sidebarNavItems }) => {
             color: '#FFF',
             textAlign: "center",
             mb: 4,
+            pb: 2,
           }}
         >
           {user?.email || "user@example.com"}
@@ -98,7 +99,7 @@ const Sidebar = ({ user, logout, location, sidebarNavItems }) => {
       </div>
 
       {/* Spacer to push content below the floating avatar section and its text */}
-      <div className="pt-28">
+      <div className="pt-[180px]">
         <div className="w-full border-b border-red-400 mb-4 px-5"></div>
 
         <nav className="flex-grow px-5">
