@@ -4,7 +4,6 @@ import Layout from './components/layout/Layout';
 import { Dashboard } from './pages/Dashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import ForgotPassword from './pages/ForgotPassword';
 import NotFound from './pages/NotFound';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ToastContainer } from 'react-toastify';
@@ -46,11 +45,6 @@ function App() {
         <Route path="/register" element={
           <PublicRoute>
             <Register />
-          </PublicRoute>
-        } />
-        <Route path="/forgot-password" element={
-          <PublicRoute>
-            <ForgotPassword />
           </PublicRoute>
         } />
 

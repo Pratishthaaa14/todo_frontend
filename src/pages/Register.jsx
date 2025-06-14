@@ -89,25 +89,25 @@ const Register = () => {
   };
 
   const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
+      setShowPassword(!showPassword);
   };
 
   const toggleConfirmPasswordVisibility = () => {
-    setShowConfirmPassword(!showConfirmPassword);
+      setShowConfirmPassword(!showConfirmPassword);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-8 md:p-12" style={{ backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
       <Box
-        className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md"
+        className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl w-full max-w-sm md:max-w-md lg:max-w-lg"
         sx={{
           height: 'auto', // Adjust height to content
         }}
       >
-        <Typography component="h1" variant="h4" sx={{ fontWeight: 700, mb: 4, color: '#333' }}>
+        <Typography component="h1" variant="h5" sx={{ fontWeight: 700, mb: 4, color: '#333', fontSize: { xs: '1.75rem', sm: '2.125rem' } }}>
           Sign Up
         </Typography>
-
+        
         <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%', mt: 1 }}>
           <TextField
             margin="normal"
@@ -248,13 +248,12 @@ const Register = () => {
               }
             }}
           />
-
           <Button
             type="submit"
             fullWidth
             variant="contained"
             sx={{
-              mt: 3,
+              mt: 2,
               mb: 2,
               py: 1.5,
               backgroundColor: '#FF6767',
@@ -262,16 +261,16 @@ const Register = () => {
               borderRadius: '8px',
               boxShadow: 'none',
               fontWeight: 'bold',
-              fontSize: '1rem',
+              fontSize: { xs: '0.9rem', sm: '1rem' },
             }}
             disabled={loading}
           >
             {loading ? 'Registering...' : 'Sign Up'}
           </Button>
-
-          <Typography variant="body2" align="center" sx={{ mt: 2, color: '#777' }}>
+          
+          <Typography variant="body2" align="center" sx={{ color: '#777', fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
             Already have an account? <Link to="/login" style={{ textDecoration: 'none', color: '#3B82F6', fontWeight: 600 }}>Sign In</Link>
-          </Typography>
+              </Typography>
         </Box>
       </Box>
     </div>

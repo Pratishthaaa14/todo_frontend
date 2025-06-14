@@ -71,7 +71,7 @@ const TaskList = ({ onEditTask, searchQuery, searchCriteria, statusFilter, prior
   }
 
   return (
-    <div className={`grid ${singleColumn ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'} gap-4`}>
+    <div className={`grid ${singleColumn ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2'} gap-4`}>
       {sortedTasks?.length === 0 ? (
         <div className="p-8 text-center text-gray-500 col-span-full">
           <Typography variant="h6" color="textSecondary">

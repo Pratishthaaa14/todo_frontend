@@ -117,16 +117,6 @@ export const updateProfile = async (userData) => {
   };
 };
 
-export const forgotPassword = async (email) => {
-  const response = await api.post('api/v1/auth/forgotpassword', { email });
-  return response.data;
-};
-
-export const resetPassword = async (token, password) => {
-  const response = await api.put(`api/v1/auth/resetpassword/${token}`, { password });
-  return response.data;
-};
-
 // Search API endpoint
 export const searchTasks = async (query) => {
   const response = await api.get(`api/v1/tasks/search?q=${encodeURIComponent(query)}`);

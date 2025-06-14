@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Dashboard as DashboardIcon,
@@ -8,51 +8,35 @@ import {
   Category as TaskCategoriesIcon,
   Settings as SettingsIcon,
   HelpOutline as HelpIcon,
+  Menu as MenuIcon,
 } from "@mui/icons-material";
-import { Typography, Avatar, Box } from "@mui/material";
+import {
+  Typography,
+  Avatar,
+  Box,
+  Drawer,
+  IconButton,
+  useMediaQuery,
+} from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 
-const getInitials = (name) => {
-  if (!name) return "";
-  const parts = name.split(" ").filter(Boolean); // Filter out empty strings
-  if (parts.length === 0) return "";
-  if (parts.length === 1) return parts[0][0].toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-};
+const Sidebar = ({ user, logout, location }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
-const Sidebar = ({ user, logout, location, sidebarNavItems }) => {
   const mainNavItems = [
-    {
-      path: "/dashboard",
-      icon: <DashboardIcon sx={{ fontSize: 28 }} />,
-      text: "Dashboard",
-    },
-    {
-      path: "/vital-task",
-      icon: <VitalTaskIcon sx={{ fontSize: 28 }} />,
-      text: "Vital Task",
-    },
-    {
-      path: "/my-task",
-      icon: <MyTaskIcon sx={{ fontSize: 28 }} />,
-      text: "My Task",
-    },
-    {
-      path: "/task-categories",
-      icon: <TaskCategoriesIcon sx={{ fontSize: 28 }} />,
-      text: "Task Categories",
-    },
-    {
-      path: "/settings",
-      icon: <SettingsIcon sx={{ fontSize: 28 }} />,
-      text: "Settings",
-    },
+    { path: "/dashboard", icon: <DashboardIcon sx={{ fontSize: 28 }} />, text: "Dashboard" },
+    { path: "/vital-task", icon: <VitalTaskIcon sx={{ fontSize: 28 }} />, text: "Vital Task" },
+    { path: "/my-task", icon: <MyTaskIcon sx={{ fontSize: 28 }} />, text: "My Task" },
+    { path: "/task-categories", icon: <TaskCategoriesIcon sx={{ fontSize: 28 }} />, text: "Task Categories" },
+    { path: "/settings", icon: <SettingsIcon sx={{ fontSize: 28 }} />, text: "Settings" },
     { path: "/help", icon: <HelpIcon sx={{ fontSize: 28 }} />, text: "Help" },
   ];
 
-  return (
-    <aside className="w-96 bg-[#FF6767] text-white flex flex-col justify-start shadow-lg relative z-20 rounded-tr-lg">
-      {/* Avatar and User Info Section - positioned for overlap */}
-      <div className="absolute top-[-45px] left-1/2 -translate-x-1/2 flex flex-col items-center z-30 w-full px-5">
+  const renderSidebarContent = (
+    <div className="w-80 bg-[#FF6767] text-white h-full flex flex-col rounded-tr-lg">
+      <div className="flex flex-col items-center mt-10 px-5">
         <Avatar
           alt={user?.name || "User"}
           src={user?.avatar || ""}
@@ -65,78 +49,99 @@ const Sidebar = ({ user, logout, location, sidebarNavItems }) => {
             fontWeight: "bold",
             border: "3px solid white",
             boxShadow: "0px 6px 15px rgba(0, 0, 0, 0.2)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
           }}
         >
           {!user?.avatar && user?.email ? user.email[0].toUpperCase() : ""}
         </Avatar>
 
-        <Typography
-          variant="h5"
-          sx={{
-            fontWeight: "bold",
-            color: "#FFF",
-            textAlign: "center",
-            mt: 4,
-          }}
-        >
-          {user?.name || ''}
+        <Typography variant="h5" sx={{ fontWeight: "bold", mt: 2 }}>
+          {user?.name || ""}
         </Typography>
-        <Typography
-          variant="body1"
-          sx={{
-            fontWeight: 'bold',
-            color: '#FFF',
-            textAlign: "center",
-            mb: 4,
-            pb: 2,
-          }}
-        >
+        <Typography variant="body1" sx={{ fontWeight: "bold", mb: 3 }}>
           {user?.email || "user@example.com"}
         </Typography>
       </div>
 
-      {/* Spacer to push content below the floating avatar section and its text */}
-      <div className="pt-[180px]">
-        <div className="w-full border-b border-red-400 mb-4 px-5"></div>
-
-        <nav className="flex-grow px-5">
-          <ul className="space-y-2">
-            {mainNavItems.map((item) => {
-              const isActive = location.pathname === item.path;
-              const itemClasses = `flex items-center p-2 rounded-lg text-lg font-semibold transition-all duration-200 ${
-                isActive
-                  ? "bg-white text-[#EF4444] shadow-md"
-                  : "hover:bg-red-500 text-white"
-              }`;
-
-              return (
-                <li key={item.path}>
-                  <Link to={item.path} className={itemClasses}>
-                    {item.icon}
-                    <span className="ml-3">{item.text}</span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
+      <div className="px-5">
+        <ul className="space-y-2 mt-2">
+          {mainNavItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            const itemClasses = `flex items-center p-2 rounded-lg text-lg font-semibold transition-all duration-200 ${
+              isActive ? "bg-white text-[#EF4444] shadow-md" : "hover:bg-red-500 text-white"
+            }`;
+            return (
+              <li key={item.path}>
+                <Link to={item.path} className={itemClasses} onClick={() => isMobile && setDrawerOpen(false)}>
+                  {item.icon}
+                  <span className="ml-3">{item.text}</span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
       </div>
 
-      {/* Logout button at the bottom as per the new image */}
       <Box sx={{ mt: "auto", pb: 2, px: 5 }}>
         <Link
           to="/login"
-          onClick={logout}
-          className={`flex items-center p-2 rounded-lg text-lg font-semibold transition-all duration-200 hover:bg-red-500 text-white`}
+          onClick={() => {
+            logout();
+            isMobile && setDrawerOpen(false);
+          }}
+          className="flex items-center p-2 rounded-lg text-lg font-semibold transition-all duration-200 hover:bg-red-500 text-white"
         >
           <LogoutIcon sx={{ fontSize: 28 }} />
           <span className="ml-3">Logout</span>
         </Link>
       </Box>
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Hamburger Icon (only on mobile) */}
+      {isMobile && (
+        <IconButton
+        onClick={() => setDrawerOpen(true)}
+        className="text-[#FF6767] z-50"
+        sx={{
+          position: "fixed",
+          top: "120px",
+          left: "10px",
+          bgcolor: "#fff",
+          boxShadow: 3,
+          borderRadius: "12px",
+          padding: "6px",
+          zIndex: 1300,
+          "&:hover": {
+            bgcolor: "#f3f4f6",
+          },
+        }}
+      >
+        <MenuIcon fontSize="medium" />
+      </IconButton>
+      )}
+
+      {/* Drawer for mobile */}
+      <Drawer
+        anchor="left"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        ModalProps={{ keepMounted: true }}
+        sx={{
+          "& .MuiDrawer-paper": { width: 320, boxSizing: "border-box" },
+        }}
+      >
+        {renderSidebarContent}
+      </Drawer>
+
+      {/* Static sidebar for larger screens */}
+      {!isMobile && (
+        <aside className="w-80 bg-[#FF6767] text-white flex flex-col shadow-lg h-screen rounded-tr-lg">
+          {renderSidebarContent}
+        </aside>
+      )}
+    </>
   );
 };
 

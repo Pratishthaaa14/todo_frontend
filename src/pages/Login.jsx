@@ -76,16 +76,16 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-8 md:p-12" style={{ backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
       <Box
-        className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md"
+        className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl w-full max-w-sm md:max-w-md lg:max-w-lg"
         sx={{
           height: 'auto', // Adjust height to content
         }}
       >
         {/* Left Section: Login Form */}
-        <Box sx={{ flex: 1, p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-          <Typography component="h1" variant="h4" sx={{ fontWeight: 700, mb: 4, color: '#333' }}>
+        <Box sx={{ flex: 1, p: { xs: 2, sm: 4 }, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <Typography component="h1" variant="h5" sx={{ fontWeight: 700, mb: 4, color: '#333', fontSize: { xs: '1.75rem', sm: '2.125rem' } }}>
             Sign In
           </Typography>
 
@@ -163,7 +163,7 @@ const Login = () => {
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
               label="Remember Me"
-              sx={{ mt: 1, mb: 2, '& .MuiFormControlLabel-label': { fontSize: '0.9rem' } }}
+              sx={{ mt: 1, mb: 2, '& .MuiFormControlLabel-label': { fontSize: { xs: '0.8rem', sm: '0.9rem' } } }}
             />
             <Button
               type="submit"
@@ -178,14 +178,14 @@ const Login = () => {
                 borderRadius: '8px',
                 boxShadow: 'none',
                 fontWeight: 'bold',
-                fontSize: '1rem',
+                fontSize: { xs: '0.9rem', sm: '1rem' },
               }}
               disabled={loading}
             >
               {loading ? 'Signing In...' : 'Login'}
             </Button>
             
-            <Typography variant="body2" align="center" sx={{ color: '#777' }}>
+            <Typography variant="body2" align="center" sx={{ color: '#777', fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
               Don't have an account? <Link to="/register" style={{ textDecoration: 'none', color: '#3B82F6', fontWeight: 600 }}>Create One</Link>
             </Typography>
           </Box>

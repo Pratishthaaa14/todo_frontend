@@ -124,9 +124,9 @@ const TaskItem = ({ task, onEdit }) => {
           border: '1px solid #E5E7EB',
         }}
       >
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%', flexDirection: { xs: 'column', sm: 'row' } }}>
           {/* Left part: Checkbox, Title, Description, and Tags */}
-          <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', minWidth: 0, pr: 1 }}>
+          <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', minWidth: 0, pr: { xs: 0, sm: 1 }, mb: { xs: 2, sm: 0 } }}>
             <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 1 }}>
               <Checkbox
                 checked={task.status === "completed"}
@@ -149,6 +149,7 @@ const TaskItem = ({ task, onEdit }) => {
                   display: '-webkit-box',
                   WebkitLineClamp: '1',
                   WebkitBoxOrient: 'vertical',
+                  fontSize: { xs: '0.95rem', sm: '1rem' },
                 }}
               >
                 {task.title}
@@ -166,28 +167,29 @@ const TaskItem = ({ task, onEdit }) => {
                   WebkitLineClamp: '2',
                   WebkitBoxOrient: 'vertical',
                   mb: 1,
+                  fontSize: { xs: '0.85rem', sm: '0.9rem' },
                 }}
               >
                 {task.description}
               </Typography>
             )}
 
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', mt: 'auto', width: '100%', justifyContent: 'space-between' }}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', mt: 'auto', width: '100%', justifyContent: 'space-between', flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 1, sm: 0 } }}>
               <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
-                <Typography variant="body2" sx={{ color: '#000000', fontWeight: 500, mr: 0.5 }}>
+                <Typography variant="body2" sx={{ color: '#000000', fontWeight: 500, mr: 0.5, fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
                   Priority:
                 </Typography>
-                <Typography variant="body2" sx={{ color: priorityColors[task.priority].text, fontWeight: 500, mr: 2 }}>
+                <Typography variant="body2" sx={{ color: priorityColors[task.priority].text, fontWeight: 500, mr: 2, fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
                   {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
                 </Typography>
-                <Typography variant="body2" sx={{ color: '#000000', fontWeight: 500, mr: 0.5 }}>
+                <Typography variant="body2" sx={{ color: '#000000', fontWeight: 500, mr: 0.5, fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
                   Status:
                 </Typography>
-                <Typography variant="body2" sx={{ color: statusColors[task.status].text, fontWeight: 500 }}>
+                <Typography variant="body2" sx={{ color: statusColors[task.status].text, fontWeight: 500, fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
                   {task.status.replace('-', ' ').charAt(0).toUpperCase() + task.status.replace('-', ' ').slice(1)}
                 </Typography>
               </Box>
-              <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'right', color: '#6B7280', fontWeight: 'bold' }}>
+              <Typography variant="caption" color="text.secondary" sx={{ textAlign: { xs: 'left', sm: 'right' }, color: '#6B7280', fontWeight: 'bold', fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>
                 Created on: {format(new Date(task.createdAt), 'dd/MM/yyyy')}
                 {task.dueDate && (
                   <>
@@ -199,42 +201,45 @@ const TaskItem = ({ task, onEdit }) => {
             </Box>
           </Box>
 
-          {/* Right part: More Icon (No Image) */}
-          <Box sx={{ flexShrink: 0 }}>
-            <IconButton
-              size="small"
-              onClick={handleMenuOpen}
-              sx={{ color: '#6B7280' }}
-            >
-              <MoreIcon />
+          {/* Right part: More options */}
+          <Box>
+            <IconButton onClick={handleMenuOpen} sx={{ p: 0 }}>
+              <MoreIcon sx={{ color: '#9CA3AF' }} />
           </IconButton>
-          </Box>
-        </Box>
-      </Card>
-
         <Menu
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
           onClose={handleMenuClose}
-        >
+              MenuListProps={{
+                'aria-labelledby': 'basic-button',
+              }}
+            >
           <MenuItem onClick={() => { onEdit(task); handleMenuClose(); }}>
-          <EditIcon sx={{ mr: 1 }} /> Edit
+                <EditIcon sx={{ mr: 1 }} /> Edit
           </MenuItem>
-        <MenuItem onClick={handleDelete}>
-          <DeleteIcon sx={{ mr: 1 }} /> Delete
+              <MenuItem onClick={handleDelete}>
+                <DeleteIcon sx={{ mr: 1 }} /> Delete
           </MenuItem>
         </Menu>
+          </Box>
+        </Box>
 
-      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
-        <DialogTitle>Confirm Deletion</DialogTitle>
-        <DialogContent>
-          <Typography>Are you sure you want to delete this task?</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button onClick={confirmDelete} color="error">Delete</Button>
-        </DialogActions>
-      </Dialog>
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+          <DialogTitle>Confirm Delete</DialogTitle>
+          <DialogContent>
+            <Typography>Are you sure you want to delete this task?</Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setDeleteDialogOpen(false)} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={confirmDelete} color="error">
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
+    </Card>
     </>
   );
 };
