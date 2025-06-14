@@ -189,6 +189,12 @@ const TaskItem = ({ task, onEdit }) => {
               </Box>
               <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'right', color: '#6B7280', fontWeight: 'bold' }}>
                 Created on: {format(new Date(task.createdAt), 'dd/MM/yyyy')}
+                {task.dueDate && (
+                  <>
+                    <br />
+                    <span>Due Date: {format(new Date(task.dueDate), 'dd/MM/yyyy')}</span>
+                  </>
+                )}
               </Typography>
             </Box>
           </Box>

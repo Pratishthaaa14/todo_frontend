@@ -18,6 +18,7 @@ const Layout = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchCriteria, setSearchCriteria] = useState('all');
 
   const isDashboard = location.pathname === '/dashboard';
 
@@ -27,13 +28,13 @@ const Layout = () => {
   
   return (
     <div className="flex flex-col min-h-screen bg-white font-poppins">
-      <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+      <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} searchCriteria={searchCriteria} setSearchCriteria={setSearchCriteria} />
       <div className="flex flex-grow">
         <Sidebar user={user} logout={logout} location={location} sidebarNavItems={sidebarNavItems} />
 
         {/* Main Content */}
         <main className="flex-grow flex flex-col overflow-auto">
-          <Outlet context={{ searchQuery, setSearchQuery }} />
+          <Outlet context={{ searchQuery, setSearchQuery, searchCriteria, setSearchCriteria }} />
       </main>
       </div>
     </div>

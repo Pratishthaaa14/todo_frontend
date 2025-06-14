@@ -118,12 +118,12 @@ export const updateProfile = async (userData) => {
 };
 
 export const forgotPassword = async (email) => {
-  const response = await api.post('api/v1/auth/forgot-password', { email });
+  const response = await api.post('api/v1/auth/forgotpassword', { email });
   return response.data;
 };
 
 export const resetPassword = async (token, password) => {
-  const response = await api.post('api/v1/auth/reset-password', { token, password });
+  const response = await api.put(`api/v1/auth/resetpassword/${token}`, { password });
   return response.data;
 };
 
@@ -140,7 +140,7 @@ export const getNotifications = async () => {
 };
 
 export const markAllNotificationsAsRead = async () => {
-  const response = await api.put('api/v1/notifications/mark-read');
+  const response = await api.patch('api/v1/notifications/read-all');
   return response.data;
 };
 

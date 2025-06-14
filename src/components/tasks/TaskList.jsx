@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 
-const TaskList = ({ onEditTask, searchQuery, statusFilter, priorityFilter, sortBy, singleColumn }) => {
+const TaskList = ({ onEditTask, searchQuery, searchCriteria, statusFilter, priorityFilter, sortBy, singleColumn }) => {
   const { user } = useAuth();
 
   const { data: tasks, isLoading, error } = useQuery({
@@ -19,9 +19,20 @@ const TaskList = ({ onEditTask, searchQuery, statusFilter, priorityFilter, sortB
   });
 
   const filteredTasks = tasks?.filter((task) => {
-    const matchesSearch = task.title
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
+    const lowerCaseSearchQuery = searchQuery.toLowerCase();
+    let matchesSearch = false;
+
+    if (searchCriteria === "title") {
+      matchesSearch = task.title.toLowerCase().includes(lowerCaseSearchQuery);
+    } else if (searchCriteria === "description") {
+      matchesSearch = (task.description || '').toLowerCase().includes(lowerCaseSearchQuery);
+    } else {
+      // Default to searching in both title and description if criteria is 'all' or undefined
+      matchesSearch = 
+        task.title.toLowerCase().includes(lowerCaseSearchQuery) ||
+        (task.description || '').toLowerCase().includes(lowerCaseSearchQuery);
+    }
+
     const matchesStatus =
       statusFilter === "all" || task.status === statusFilter;
     const matchesPriority =

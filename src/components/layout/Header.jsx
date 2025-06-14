@@ -18,9 +18,9 @@ import {
   getNotifications,
   markAllNotificationsAsRead,
 } from "../../services/api";
-import { Typography, InputBase, IconButton, Paper, Button } from "@mui/material";
+import { Typography, InputBase, IconButton, Paper, Button, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 
-const Header = ({ searchQuery, setSearchQuery }) => {
+const Header = ({ searchQuery, setSearchQuery, searchCriteria, setSearchCriteria }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -51,7 +51,7 @@ const Header = ({ searchQuery, setSearchQuery }) => {
   } = useQuery({
     queryKey: ["notifications"],
     queryFn: getNotifications,
-    staleTime: 5 * 60 * 1000, // Data considered fresh for 5 minutes
+    staleTime: 0, // Data considered fresh for 5 minutes
     refetchOnWindowFocus: true, // Re-fetch when window regains focus
   });
 
@@ -60,8 +60,9 @@ const Header = ({ searchQuery, setSearchQuery }) => {
 
   // Update notifications state when notificationsData changes and is an array
   useEffect(() => {
-    if (Array.isArray(notificationsData)) {
-      setNotifications(notificationsData);
+    console.log('Notifications Data from API:', notificationsData);
+    if (notificationsData && Array.isArray(notificationsData.data)) {
+      setNotifications(notificationsData.data);
     }
   }, [notificationsData]);
 
@@ -169,7 +170,30 @@ const Header = ({ searchQuery, setSearchQuery }) => {
                 },
               }}
             />
-              <IconButton
+            <FormControl variant="standard" sx={{ minWidth: 120, ml: 2 }}>
+              <Select
+                value={searchCriteria}
+                onChange={(e) => setSearchCriteria(e.target.value)}
+                displayEmpty
+                inputProps={{ 'aria-label': 'Without label' }}
+                sx={{
+                  height: '40px',
+                  color: '#333',
+                  fontWeight: 500,
+                  border: 'none',
+                  '&:before': { borderBottom: 'none !important' },
+                  '&:after': { borderBottom: 'none !important' },
+                  '&:hover:not(.Mui-disabled):before': { borderBottom: 'none !important' },
+                  '.MuiSelect-select': { paddingRight: '24px !important' },
+                  '.MuiSvgIcon-root': { color: '#333' },
+                }}
+              >
+                <MenuItem value="all">All</MenuItem>
+                <MenuItem value="title">Title</MenuItem>
+                <MenuItem value="description">Description</MenuItem>
+              </Select>
+            </FormControl>
+            <IconButton
               type="submit"
               className="bg-[#EF4444] text-white rounded-lg w-10 h-10 flex items-center justify-center flex-shrink-0"
               sx={{
@@ -263,7 +287,7 @@ const Header = ({ searchQuery, setSearchQuery }) => {
                         >
                           Mark All as Read
                         </Button>
-                      )}
+                )}
                     </>
                   )}
                 </Paper>
@@ -384,7 +408,7 @@ const Header = ({ searchQuery, setSearchQuery }) => {
                       <div className="p-3 text-center text-sm text-purple-200">
                         No new notifications.
                       </div>
-                    ) : (
+          ) : (
                       <div className="max-h-48 overflow-y-auto">
                         {notifications.map((notif) => (
                           <div

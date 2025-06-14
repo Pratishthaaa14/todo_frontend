@@ -45,7 +45,7 @@ export const Dashboard = () => {
   const [editingTask, setEditingTask] = useState(null);
   const { user, logout } = useAuth();
   const [isMobile, setIsMobile] = useState(false);
-  const { searchQuery, setSearchQuery } = useOutletContext();
+  const { searchQuery, setSearchQuery, searchCriteria, setSearchCriteria } = useOutletContext();
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
   const [sortBy, setSortBy] = useState("createdAt");
@@ -217,6 +217,7 @@ export const Dashboard = () => {
             <TaskList
               onEditTask={handleEditTask}
               searchQuery={searchQuery}
+              searchCriteria={searchCriteria}
               statusFilter={statusFilter}
               priorityFilter={priorityFilter}
               sortBy={sortBy}
@@ -237,6 +238,7 @@ export const Dashboard = () => {
             <CompletedTasks
               onEditTask={handleEditTask}
               searchQuery={searchQuery}
+              searchCriteria={searchCriteria}
               statusFilter={statusFilter}
               priorityFilter={priorityFilter}
               sortBy={sortBy}

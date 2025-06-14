@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { login as loginApi, register as registerApi, getProfile as getProfileApi, updateProfile as updateProfileApi, forgotPassword as forgotPasswordApi } from '../services/api';
+import { login as loginApi, register as registerApi, getProfile as getProfileApi, updateProfile as updateProfileApi, forgotPassword as forgotPasswordApi, resetPassword as resetPasswordApi } from '../services/api';
 import { toast } from 'react-toastify';
 
 const AuthContext = createContext();
@@ -104,11 +104,25 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const resetPassword = async (email) => {
+  const requestPasswordReset = async (email) => {
     try {
-      await forgotPasswordApi(email);
+      const response = await forgotPasswordApi(email);
+      toast.success(response.message || 'Password reset link sent. Please check your email.');
     } catch (error) {
-      console.error('Error in resetPassword (AuthContext):', error);
+      console.error('Error in requestPasswordReset (AuthContext):', error);
+      toast.error(error.message || 'Failed to send password reset link.');
+      throw error;
+    }
+  };
+
+  const confirmPasswordReset = async (token, password) => {
+    try {
+      const response = await resetPasswordApi(token, password);
+      toast.success(response.message || 'Password reset successfully! You can now log in.');
+      return response;
+    } catch (error) {
+      console.error('Error in confirmPasswordReset (AuthContext):', error);
+      toast.error(error.message || 'Failed to reset password.');
       throw error;
     }
   };
@@ -120,7 +134,8 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     updateProfile,
-    resetPassword,
+    requestPasswordReset,
+    confirmPasswordReset,
   };
 
   if (loading) {
