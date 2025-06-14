@@ -3,7 +3,7 @@ import { Typography } from '@mui/material';
 import TaskList from './tasks/TaskList';
 import { CheckCircleOutline as CheckCircleOutlineIcon } from '@mui/icons-material';
 
-const CompletedTasks = ({ onEditTask, searchQuery, priorityFilter, sortBy }) => {
+const CompletedTasks = ({ onEditTask, searchQuery, searchCriteria, priorityFilter, sortBy }) => {
   return (
     <div>
       <div className="bg-white shadow rounded-lg p-4">
@@ -17,6 +17,7 @@ const CompletedTasks = ({ onEditTask, searchQuery, priorityFilter, sortBy }) => 
           <TaskList
             onEditTask={onEditTask}
             searchQuery={searchQuery}
+            searchCriteria={searchCriteria}
             statusFilter="completed"
             priorityFilter={priorityFilter}
             sortBy={sortBy}
