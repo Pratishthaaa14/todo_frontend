@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import api from '../api/axios';
@@ -11,7 +11,14 @@ const ResetPassword = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { resetToken } = useParams();
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
+
+  // Check if user is already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,25 +48,33 @@ const ResetPassword = () => {
         
         // Use the token and user data from the reset password response
         if (response.data.token && response.data.user) {
-          login(response.data.token, response.data.user);
-          navigate('/dashboard');
+          console.log('Logging in with reset password response data');
+          await login(response.data.token, response.data.user);
+          console.log('Login successful, redirecting to dashboard');
+          navigate('/dashboard', { replace: true });
         } else {
+          console.log('No token/user data in response, attempting login with new password');
           // If no token/user data, try to log in with the new password
           try {
             const loginResponse = await api.post('api/v1/auth/login', {
               email: response.data.user.email,
-              password: password
+              password: password // Use the new password
             });
 
             if (loginResponse.data.success) {
-              login(loginResponse.data.token, loginResponse.data.user);
-              navigate('/dashboard');
+              console.log('Login successful with new password');
+              await login(loginResponse.data.token, loginResponse.data.user);
+              console.log('Login successful, redirecting to dashboard');
+              navigate('/dashboard', { replace: true });
             } else {
-              navigate('/login');
+              console.log('Login failed, redirecting to login page');
+              toast.error('Please log in with your new password');
+              navigate('/login', { replace: true });
             }
           } catch (loginError) {
             console.error('Auto-login error:', loginError);
-            navigate('/login');
+            toast.error('Password reset successful. Please log in with your new password.');
+            navigate('/login', { replace: true });
           }
         }
       } else {

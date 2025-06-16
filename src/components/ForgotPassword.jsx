@@ -14,12 +14,16 @@ const ForgotPassword = () => {
     setLoading(true);
 
     try {
+      console.log('Sending forgot password request for email:', email);
       const response = await api.post('api/v1/auth/forgot-password', { email });
       console.log('Forgot password response:', response);
       
       if (response.data.success) {
         toast.success(response.data.message || 'Password reset link sent to your email');
-        navigate('/login');
+        // Add a small delay before redirecting to ensure the toast is visible
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
       } else {
         toast.error(response.data.message || 'Failed to send reset link');
       }
