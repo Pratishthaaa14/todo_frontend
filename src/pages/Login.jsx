@@ -160,11 +160,27 @@ const Login = () => {
                 }
               }}
             />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember Me"
-              sx={{ mt: 1, mb: 2, '& .MuiFormControlLabel-label': { fontSize: { xs: '0.8rem', sm: '0.9rem' } } }}
-            />
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1, mb: 2 }}>
+              <FormControlLabel
+                control={<Checkbox value="remember" color="primary" />}
+                label="Remember Me"
+                sx={{ '& .MuiFormControlLabel-label': { fontSize: { xs: '0.8rem', sm: '0.9rem' } } }}
+              />
+              <Link 
+                to="/forgot-password" 
+                style={{ 
+                  textDecoration: 'none', 
+                  color: '#3B82F6', 
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  '&:hover': {
+                    textDecoration: 'underline'
+                  }
+                }}
+              >
+                Forgot Password?
+              </Link>
+            </Box>
             <Button
               type="submit"
               fullWidth
