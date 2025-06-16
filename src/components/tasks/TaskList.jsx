@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 
-const TaskList = ({ onEditTask, searchQuery, searchCriteria, statusFilter, priorityFilter, sortBy, singleColumn }) => {
+const TaskList = ({ onEditTask, searchQuery, searchCriteria, statusFilter, priorityFilter, sortBy, sortDirection = 'desc', singleColumn }) => {
   const { user } = useAuth();
 
   const { data: tasks, isLoading, error } = useQuery({
@@ -27,7 +27,6 @@ const TaskList = ({ onEditTask, searchQuery, searchCriteria, statusFilter, prior
     } else if (searchCriteria === "description") {
       matchesSearch = (task.description || '').toLowerCase().includes(lowerCaseSearchQuery);
     } else {
-      // Default to searching in both title and description if criteria is 'all' or undefined
       matchesSearch = 
         task.title.toLowerCase().includes(lowerCaseSearchQuery) ||
         (task.description || '').toLowerCase().includes(lowerCaseSearchQuery);
@@ -40,19 +39,43 @@ const TaskList = ({ onEditTask, searchQuery, searchCriteria, statusFilter, prior
     return matchesSearch && matchesStatus && matchesPriority;
   });
 
-  const sortedTasks = [...(filteredTasks || [])].sort((a, b) => {
-    switch (sortBy) {
-      case "title":
-        return a.title.localeCompare(b.title);
-      case "dueDate":
-        return new Date(a.dueDate) - new Date(b.dueDate);
-      case "priority":
-      const priorityOrder = { high: 3, medium: 2, low: 1 };
-      return priorityOrder[b.priority] - priorityOrder[a.priority];
-      default:
-        return new Date(b.createdAt) - new Date(a.createdAt);
-    }
-  });
+  const sortedTasks = useMemo(() => {
+    if (!filteredTasks) return [];
+    
+    return [...filteredTasks].sort((a, b) => {
+      const direction = sortDirection === 'desc' ? -1 : 1;
+      
+      switch (sortBy) {
+        case "title":
+          return direction * a.title.localeCompare(b.title);
+        
+        case "dueDate":
+          const dateA = new Date(a.dueDate);
+          const dateB = new Date(b.dueDate);
+          // Handle null/invalid dates by putting them at the end
+          if (isNaN(dateA.getTime()) && isNaN(dateB.getTime())) return 0;
+          if (isNaN(dateA.getTime())) return direction;
+          if (isNaN(dateB.getTime())) return -direction;
+          return direction * (dateA.getTime() - dateB.getTime());
+        
+        case "createdAt":
+          const createdAtA = new Date(a.createdAt);
+          const createdAtB = new Date(b.createdAt);
+          return direction * (createdAtA.getTime() - createdAtB.getTime());
+        
+        case "priority":
+          const priorityOrder = { high: 3, medium: 2, low: 1 };
+          // For ascending: low→high, For descending: high→low
+          return direction * (priorityOrder[a.priority] - priorityOrder[b.priority]);
+        
+        default:
+          // Default to sort by creation date
+          const defaultA = new Date(a.createdAt);
+          const defaultB = new Date(b.createdAt);
+          return direction * (defaultA.getTime() - defaultB.getTime());
+      }
+    });
+  }, [filteredTasks, sortBy, sortDirection]);
 
   if (isLoading) {
     return (
@@ -81,13 +104,13 @@ const TaskList = ({ onEditTask, searchQuery, searchCriteria, statusFilter, prior
             {searchQuery || statusFilter !== "all" || priorityFilter !== "all"
               ? "Try adjusting your filters"
               : "Create a new task to get started"}
-      </Typography>
+          </Typography>
         </div>
-            ) : (
+      ) : (
         sortedTasks?.map((task) => (
           <TaskItem key={task._id} task={task} onEdit={onEditTask} />
         ))
-            )}
+      )}
     </div>
   );
 };

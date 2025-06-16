@@ -213,11 +213,11 @@ const Login = () => {
               }}
             />
             <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <FormControlLabel
-                control={<Checkbox value="remember" color="primary" />}
+            <FormControlLabel
+              control={<Checkbox value="remember" color="primary" />}
                 label="Remember me"
                 sx={{ color: '#6B7280' }}
-              />
+            />
               <Link to="/forgot-password" className="text-[#FF6767] hover:text-[#ff5252] text-sm transition duration-150 ease-in-out">
                 Forgot password?
               </Link>
@@ -250,7 +250,7 @@ const Login = () => {
                 <Link to="/register" className="text-[#FF6767] hover:text-[#ff5252] transition duration-150 ease-in-out">
                   Sign up
                 </Link>
-              </Typography>
+            </Typography>
             </Box>
           </Box>
         </Box>

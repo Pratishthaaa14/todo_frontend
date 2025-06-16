@@ -49,6 +49,7 @@ export const Dashboard = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
   const [sortBy, setSortBy] = useState("createdAt");
+  const [sortDirection, setSortDirection] = useState("desc");
   const queryClient = useQueryClient();
 
   // Fetch all tasks to pass to TaskStatusSection
@@ -68,13 +69,7 @@ export const Dashboard = () => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // if (notificationRef.current && !notificationRef.current.contains(event.target)) {
-      //   setNotificationsDropdownOpen(false);
-      // }
-      // We will remove userDropdownRef if no longer needed in Dashboard
-      // if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
-      //   setUserDropdownOpen(false);
-      // }
+     
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -99,31 +94,15 @@ export const Dashboard = () => {
     // markReadMutation.mutate();
   };
 
-  const mockAvatars = [
-    "https://randomuser.me/api/portraits/men/32.jpg",
-    "https://randomuser.me/api/portraits/women/44.jpg",
-    "https://randomuser.me/api/portraits/men/50.jpg",
-    "https://randomuser.me/api/portraits/women/60.jpg",
-  ];
 
   return (
     <div className="min-h-screen bg-[#F5F8FF]">
       {/* Welcome Banner */}
-      <div className="bg-white py-8 px-6 border-b border-gray-200 text-center">
-        <div className="max-w-7xl mx-auto ">
+      <div className="bg-white py-4 sm:py-12 px-6 border-b border-gray-200 text-center">
+        <div className="max-w-7xl mx-auto mt-12">
           <Typography variant="h4" sx={{ fontWeight: 700, color: '#000000' }}>
             Welcome back, <span style={{ color: '#000000', fontSize: '1.1em' }}>{user?.email || 'User'}</span> 👋
           </Typography>
-          {/* <div className="flex items-center space-x-2">
-            {mockAvatars.map((src, index) => (
-              <Avatar key={index} src={src} sx={{ width: 32, height: 32, border: '2px solid white' }} />
-            ))}
-            <button
-              onClick={() => setInviteDialogOpen(true)} // Open invite dialog
-              className="flex items-center px-4 py-2 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition-colors duration-200">
-              <PersonAddIcon fontSize="small" sx={{ mr: 1 }} /> Invite
-            </button>
-          </div> */}
         </div>
       </div>
 
@@ -148,11 +127,17 @@ export const Dashboard = () => {
       </Typography>
             </div>
             <div className="flex flex-wrap gap-4 items-center justify-between mb-4">
-              <div className="flex flex-wrap gap-4 items-center ">
+              <div className="flex flex-wrap gap-4 items-center">
                 <FormControl
                   variant="outlined"
                   size="medium"
-                  sx={{ minWidth: 120 }}
+                  sx={{ 
+                    minWidth: 180,
+                    '& .MuiSelect-select': {
+                      padding: '14px 16px',
+                      height: '25px'
+                    }
+                  }}
                 >
                   <InputLabel id="status-filter-label">Status</InputLabel>
                   <Select
@@ -178,7 +163,13 @@ export const Dashboard = () => {
                 <FormControl
                   variant="outlined"
                   size="medium"
-                  sx={{ minWidth: 120 }}
+                  sx={{ 
+                    minWidth: 180,
+                    '& .MuiSelect-select': {
+                      padding: '14px 16px',
+                      height: '25px'
+                    }
+                  }}
                 >
                   <InputLabel id="sort-by-label">Sort By</InputLabel>
                   <Select
@@ -194,19 +185,47 @@ export const Dashboard = () => {
                       '.MuiSvgIcon-root': { color: '#EF4444' },
                     }}
                   >
-                    <MenuItem value="createdAt">Newest</MenuItem>
-                    <MenuItem value="title">Title</MenuItem>
+                    <MenuItem value="createdAt">Creation Date</MenuItem>
                     <MenuItem value="dueDate">Due Date</MenuItem>
                     <MenuItem value="priority">Priority</MenuItem>
+                    <MenuItem value="title">Title</MenuItem>
                   </Select>
                 </FormControl>
-              </div>
 
-              {/* The add task button from the image */}
-              <div>
+                <FormControl
+                  variant="outlined"
+                  size="medium"
+                  sx={{ 
+                    minWidth: 180,
+                    '& .MuiSelect-select': {
+                      padding: '14px 16px',
+                      height: '25px'
+                    }
+                  }}
+                >
+                  <InputLabel id="sort-direction-label">Order</InputLabel>
+                  <Select
+                    labelId="sort-direction-label"
+                    value={sortDirection}
+                    onChange={(e) => setSortDirection(e.target.value)}
+                    label="Order"
+                    sx={{
+                      color: '#EF4444',
+                      '.MuiOutlinedInput-notchedOutline': { borderColor: '#E5E7EB' },
+                      '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#EF4444' },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#EF4444' },
+                      '.MuiSvgIcon-root': { color: '#EF4444' },
+                    }}
+                  >
+                    <MenuItem value="asc">{sortBy === 'priority' ? 'Low to High' : 'Oldest First'}</MenuItem>
+                    <MenuItem value="desc">{sortBy === 'priority' ? 'High to Low' : 'Newest First'}</MenuItem>
+                  </Select>
+                </FormControl>
+
+                {/* Move Add Task button here */}
                 <button
                   onClick={() => setOpenForm(!openForm)}
-                  className="flex items-center text-red-500 font-semibold px-4 py-2 rounded-lg hover:text-white hover:bg-red-500 transition-colors duration-200"
+                  className="flex items-center text-red-500 font-semibold px-6 py-[14px] rounded-lg hover:text-white hover:bg-red-500 transition-colors duration-200 border-2 border-red-500"
                 >
                   <AddIcon fontSize="small" sx={{ mr: 1, color: 'inherit' }} /> Add task
                 </button>
@@ -221,6 +240,7 @@ export const Dashboard = () => {
               statusFilter={statusFilter}
               priorityFilter={priorityFilter}
               sortBy={sortBy}
+              sortDirection={sortDirection}
               singleColumn={true} // Display as 1 column for To-Do section
             />
           </div>
@@ -242,6 +262,7 @@ export const Dashboard = () => {
               statusFilter={statusFilter}
               priorityFilter={priorityFilter}
               sortBy={sortBy}
+              sortDirection={sortDirection}
             />
           </div>
         </div>

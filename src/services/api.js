@@ -103,8 +103,8 @@ export const deleteTask = async (id) => {
 export const login = async (credentials) => {
   try {
     console.log('Login API call with credentials:', credentials);
-    const response = await api.post('api/v1/auth/login', credentials);
-    console.log('Login API response:', response);
+  const response = await api.post('api/v1/auth/login', credentials);
+  console.log('Login API response:', response);
     
     // Extract data from response
     const { data } = response;
@@ -129,7 +129,7 @@ export const login = async (credentials) => {
 export const register = async (userData) => {
   try {
     console.log('Register API call with data:', userData);
-    const response = await api.post('api/v1/auth/register', userData);
+  const response = await api.post('api/v1/auth/register', userData);
     console.log('Register API response:', response);
     
     // Extract data from response
@@ -155,7 +155,7 @@ export const register = async (userData) => {
 export const getProfile = async () => {
   try {
     console.log('Get profile API call');
-    const response = await api.get('api/v1/auth/me');
+  const response = await api.get('api/v1/auth/me');
     console.log('Get profile API response:', response);
     
     // Extract data from response
@@ -178,7 +178,7 @@ export const getProfile = async () => {
 export const updateProfile = async (userData) => {
   try {
     console.log('Update profile API call with data:', userData);
-    const response = await api.put('api/v1/auth/profile', userData);
+  const response = await api.put('api/v1/auth/profile', userData);
     console.log('Update profile API response:', response);
     
     // Extract data from response
@@ -186,7 +186,7 @@ export const updateProfile = async (userData) => {
     console.log('Update profile response data:', data);
     
     // Return the data in the expected format
-    return {
+  return {
       data: {
         _id: data._id,
         name: data.name,
@@ -247,9 +247,9 @@ export const searchTasks = async (query) => {
 export const getNotifications = async () => {
   try {
     console.log('Fetching notifications...');
-    const response = await api.get('api/v1/notifications');
+  const response = await api.get('api/v1/notifications');
     console.log('Notifications response:', response.data);
-    return response.data;
+  return response.data;
   } catch (error) {
     console.error('Error fetching notifications:', error);
     throw new Error(error.response?.data?.message || 'Failed to fetch notifications');
@@ -259,7 +259,7 @@ export const getNotifications = async () => {
 export const markAllNotificationsAsRead = async () => {
   try {
     console.log('Marking all notifications as read...');
-    const response = await api.patch('api/v1/notifications/read-all');
+  const response = await api.patch('api/v1/notifications/read-all');
     console.log('Mark all read response:', response.data);
     return response.data;
   } catch (error) {
@@ -273,7 +273,7 @@ export const markNotificationAsRead = async (notificationId) => {
     console.log('Marking notification as read:', notificationId);
     const response = await api.patch(`api/v1/notifications/${notificationId}/read`);
     console.log('Mark read response:', response.data);
-    return response.data;
+  return response.data;
   } catch (error) {
     console.error('Error marking notification as read:', error);
     throw new Error(error.response?.data?.message || 'Failed to mark notification as read');

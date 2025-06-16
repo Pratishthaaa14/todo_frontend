@@ -99,41 +99,9 @@ const Sidebar = ({ user, logout, location }) => {
 
   return (
     <>
-      {/* Hamburger Icon (only on mobile) */}
-      {isMobile && (
-        <IconButton
-        onClick={() => setDrawerOpen(true)}
-        className="text-[#FF6767] z-50"
-        sx={{
-          position: "fixed",
-          top: "120px",
-          left: "10px",
-          bgcolor: "#fff",
-          boxShadow: 3,
-          borderRadius: "12px",
-          padding: "6px",
-          zIndex: 1300,
-          "&:hover": {
-            bgcolor: "#f3f4f6",
-          },
-        }}
-      >
-        <MenuIcon fontSize="medium" />
-      </IconButton>
-      )}
+      
 
-      {/* Drawer for mobile */}
-      <Drawer
-        anchor="left"
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        ModalProps={{ keepMounted: true }}
-        sx={{
-          "& .MuiDrawer-paper": { width: 320, boxSizing: "border-box" },
-        }}
-      >
-        {renderSidebarContent}
-      </Drawer>
+      
 
       {/* Static sidebar for larger screens */}
       {!isMobile && (

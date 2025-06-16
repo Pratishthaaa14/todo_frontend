@@ -28,7 +28,13 @@ const Layout = () => {
   
   return (
     <div className="flex flex-col min-h-screen bg-white font-poppins">
-      <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} searchCriteria={searchCriteria} setSearchCriteria={setSearchCriteria} />
+      <Header 
+        searchQuery={searchQuery} 
+        setSearchQuery={setSearchQuery} 
+        searchCriteria={searchCriteria} 
+        setSearchCriteria={setSearchCriteria}
+        logout={logout}
+      />
       <div className="flex flex-grow">
         <Sidebar user={user} logout={logout} location={location} sidebarNavItems={sidebarNavItems} />
 

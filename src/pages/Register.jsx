@@ -78,7 +78,7 @@ const Register = () => {
     try {
       setLoading(true);
       await register({ name: formData.name, email: formData.email, password: formData.password });
-      toast.success('Registration successful! Please sign in.');
+      toast.success('Hello, welcome User.');
       navigate('/login');
     } catch (err) {
       console.error('Registration error:', err);

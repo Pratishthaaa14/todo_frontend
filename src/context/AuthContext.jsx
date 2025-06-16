@@ -101,11 +101,9 @@ export const AuthProvider = ({ children }) => {
       console.log('Storing token and user data:', { data, token });
       updateAuthState(data, token);
       
-      toast.success('Account created successfully!');
       return data;
     } catch (error) {
       console.error('Registration error:', error);
-      toast.error(error.response?.data?.message || 'Registration failed');
       throw error;
     }
   };
