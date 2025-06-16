@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Box, Button, TextField, Typography, Container, Alert, IconButton, InputAdornment, Checkbox, FormControlLabel } from '@mui/material';
@@ -14,8 +14,17 @@ const Login = () => {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
+
+  // Check if user is already authenticated
+  useEffect(() => {
+    console.log('Login - Auth state:', { isAuthenticated, user });
+    if (isAuthenticated && user) {
+      console.log('User is authenticated, redirecting to dashboard');
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, user, navigate]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -62,8 +71,52 @@ const Login = () => {
 
     try {
       setLoading(true);
-      await login({ email: formData.email, password: formData.password });
-      navigate('/dashboard');
+      console.log('Attempting login with:', { email: formData.email });
+      
+      // Call login and wait for it to complete
+      const userData = await login({ email: formData.email, password: formData.password });
+      console.log('Login successful, user data:', userData);
+      
+      // Check if we have user data
+      if (userData) {
+        console.log('User data received, waiting for auth state update');
+        
+        // Create a promise that resolves when auth state is updated
+        const waitForAuthState = () => {
+          return new Promise((resolve) => {
+            let attempts = 0;
+            const maxAttempts = 50; // 5 seconds maximum wait
+            
+            const checkState = () => {
+              console.log('Checking auth state:', { isAuthenticated, user });
+              if (isAuthenticated && user) {
+                console.log('Auth state updated successfully');
+                resolve(true);
+              } else if (attempts >= maxAttempts) {
+                console.log('Max attempts reached, auth state not updated');
+                resolve(false);
+              } else {
+                attempts++;
+                console.log(`Auth state not updated yet, attempt ${attempts}/${maxAttempts}`);
+                setTimeout(checkState, 100);
+              }
+            };
+            checkState();
+          });
+        };
+
+        // Wait for auth state to update
+        const authStateUpdated = await waitForAuthState();
+        
+        if (authStateUpdated) {
+          console.log('Auth state confirmed, navigating to dashboard');
+          navigate('/dashboard', { replace: true });
+        } else {
+          console.log('Auth state update failed');
+        }
+      } else {
+        console.log('No user data received from login');
+      }
     } catch (err) {
       console.error('Login error:', err);
     } finally {
@@ -95,7 +148,7 @@ const Login = () => {
               required
               fullWidth
               id="email"
-              placeholder="Enter Username"
+              placeholder="Enter Email"
               name="email"
               autoComplete="email"
               autoFocus
@@ -145,7 +198,6 @@ const Login = () => {
                       aria-label="toggle password visibility"
                       onClick={togglePasswordVisibility}
                       edge="end"
-                      sx={{ color: '#888' }}
                     >
                       {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
@@ -160,50 +212,46 @@ const Login = () => {
                 }
               }}
             />
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1, mb: 2 }}>
+            <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <FormControlLabel
                 control={<Checkbox value="remember" color="primary" />}
-                label="Remember Me"
-                sx={{ '& .MuiFormControlLabel-label': { fontSize: { xs: '0.8rem', sm: '0.9rem' } } }}
+                label="Remember me"
+                sx={{ color: '#6B7280' }}
               />
-              <Link 
-                to="/forgot-password" 
-                style={{ 
-                  textDecoration: 'none', 
-                  color: '#3B82F6', 
-                  fontSize: '0.875rem',
-                  fontWeight: 500,
-                  '&:hover': {
-                    textDecoration: 'underline'
-                  }
-                }}
-              >
-                Forgot Password?
+              <Link to="/forgot-password" className="text-[#FF6767] hover:text-[#ff5252] text-sm transition duration-150 ease-in-out">
+                Forgot password?
               </Link>
             </Box>
             <Button
               type="submit"
               fullWidth
               variant="contained"
+              disabled={loading}
               sx={{
-                mt: 1,
+                mt: 3,
                 mb: 2,
                 py: 1.5,
                 backgroundColor: '#FF6767',
-                '&:hover': { backgroundColor: '#E55353' },
+                '&:hover': {
+                  backgroundColor: '#ff5252',
+                },
                 borderRadius: '8px',
-                boxShadow: 'none',
-                fontWeight: 'bold',
-                fontSize: { xs: '0.9rem', sm: '1rem' },
+                textTransform: 'none',
+                fontSize: '1rem',
+                fontWeight: 600,
               }}
-              disabled={loading}
             >
-              {loading ? 'Signing In...' : 'Login'}
+              {loading ? 'Signing in...' : 'Sign In'}
             </Button>
             
-            <Typography variant="body2" align="center" sx={{ color: '#777', fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
-              Don't have an account? <Link to="/register" style={{ textDecoration: 'none', color: '#3B82F6', fontWeight: 600 }}>Create One</Link>
-            </Typography>
+            <Box sx={{ textAlign: 'center', mt: 2 }}>
+              <Typography variant="body2" sx={{ color: '#6B7280' }}>
+                Don't have an account?{' '}
+                <Link to="/register" className="text-[#FF6767] hover:text-[#ff5252] transition duration-150 ease-in-out">
+                  Sign up
+                </Link>
+              </Typography>
+            </Box>
           </Box>
         </Box>
       </Box>

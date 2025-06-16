@@ -11,14 +11,16 @@ const ResetPassword = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { resetToken } = useParams();
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, user } = useAuth();
 
   // Check if user is already authenticated
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/dashboard');
+    console.log('Auth state:', { isAuthenticated, user });
+    if (isAuthenticated && user) {
+      console.log('User is authenticated, redirecting to dashboard');
+      navigate('/dashboard', { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -52,9 +54,28 @@ const ResetPassword = () => {
           // Store token in localStorage
           localStorage.setItem('token', response.data.token);
           // Call login with the user data
-          await login({ email: response.data.user.email, password });
-          console.log('Login successful, redirecting to dashboard');
-          navigate('/dashboard', { replace: true });
+          try {
+            await login({ 
+              email: response.data.user.email, 
+              password: password 
+            });
+            console.log('Login successful, checking auth state');
+            // Wait a bit for the auth state to update
+            setTimeout(() => {
+              console.log('Current auth state:', { isAuthenticated, user });
+              if (isAuthenticated && user) {
+                console.log('Navigating to dashboard');
+                navigate('/dashboard', { replace: true });
+              } else {
+                console.log('Auth state not updated, redirecting to login');
+                navigate('/login', { replace: true });
+              }
+            }, 1000);
+          } catch (loginError) {
+            console.error('Login error:', loginError);
+            toast.error('Password reset successful. Please log in with your new password.');
+            navigate('/login', { replace: true });
+          }
         } else {
           console.log('No token/user data in response, attempting login with new password');
           // If no token/user data, try to log in with the new password
@@ -66,9 +87,22 @@ const ResetPassword = () => {
 
             if (loginResponse.data.success) {
               console.log('Login successful with new password');
-              await login({ email: response.data.user.email, password });
-              console.log('Login successful, redirecting to dashboard');
-              navigate('/dashboard', { replace: true });
+              await login({ 
+                email: response.data.user.email, 
+                password: password 
+              });
+              console.log('Login successful, checking auth state');
+              // Wait a bit for the auth state to update
+              setTimeout(() => {
+                console.log('Current auth state:', { isAuthenticated, user });
+                if (isAuthenticated && user) {
+                  console.log('Navigating to dashboard');
+                  navigate('/dashboard', { replace: true });
+                } else {
+                  console.log('Auth state not updated, redirecting to login');
+                  navigate('/login', { replace: true });
+                }
+              }, 1000);
             } else {
               console.log('Login failed, redirecting to login page');
               toast.error('Please log in with your new password');

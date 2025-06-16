@@ -13,7 +13,7 @@ console.log('Is Production:', isProduction);
 
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: BASE_URL,
+  baseURL: import.meta.env.VITE_API_URL || 'https://todo-backend-p970.onrender.com',
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -37,8 +37,15 @@ api.interceptors.request.use(
 
 // Add response interceptor to handle errors
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    return response;
+  },
   (error) => {
+    if (error.response?.status === 401) {
+      // Clear token and redirect to login
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
     if (error.response) {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx
@@ -94,27 +101,140 @@ export const deleteTask = async (id) => {
 
 // Auth API endpoints
 export const login = async (credentials) => {
-  const response = await api.post('api/v1/auth/login', credentials);
-  console.log('Login API response:', response);
-  return response.data;
+  try {
+    console.log('Login API call with credentials:', credentials);
+    const response = await api.post('api/v1/auth/login', credentials);
+    console.log('Login API response:', response);
+    
+    // Extract data from response
+    const { data } = response;
+    console.log('Login response data:', data);
+    
+    // Return the data in the expected format
+    return {
+      data: {
+        _id: data._id,
+        name: data.name,
+        email: data.email,
+        isAdmin: data.isAdmin
+      },
+      token: data.token
+    };
+  } catch (error) {
+    console.error('Login API error:', error);
+    throw error;
+  }
 };
 
 export const register = async (userData) => {
-  const response = await api.post('api/v1/auth/register', userData);
-  return response.data;
+  try {
+    console.log('Register API call with data:', userData);
+    const response = await api.post('api/v1/auth/register', userData);
+    console.log('Register API response:', response);
+    
+    // Extract data from response
+    const { data } = response;
+    console.log('Register response data:', data);
+    
+    // Return the data in the expected format
+    return {
+      data: {
+        _id: data._id,
+        name: data.name,
+        email: data.email,
+        isAdmin: data.isAdmin
+      },
+      token: data.token
+    };
+  } catch (error) {
+    console.error('Register API error:', error);
+    throw error;
+  }
 };
 
 export const getProfile = async () => {
-  const response = await api.get('api/v1/auth/me');
-  return response.data.data;
+  try {
+    console.log('Get profile API call');
+    const response = await api.get('api/v1/auth/me');
+    console.log('Get profile API response:', response);
+    
+    // Extract data from response
+    const { data } = response;
+    console.log('Profile response data:', data);
+    
+    // Return the data in the expected format
+    return {
+      _id: data._id,
+      name: data.name,
+      email: data.email,
+      isAdmin: data.isAdmin
+    };
+  } catch (error) {
+    console.error('Get profile API error:', error);
+    throw error;
+  }
 };
 
 export const updateProfile = async (userData) => {
-  const response = await api.put('api/v1/auth/profile', userData);
-  return {
-    data: response.data.data,
-    token: response.data.token
-  };
+  try {
+    console.log('Update profile API call with data:', userData);
+    const response = await api.put('api/v1/auth/profile', userData);
+    console.log('Update profile API response:', response);
+    
+    // Extract data from response
+    const { data } = response;
+    console.log('Update profile response data:', data);
+    
+    // Return the data in the expected format
+    return {
+      data: {
+        _id: data._id,
+        name: data.name,
+        email: data.email,
+        isAdmin: data.isAdmin
+      },
+      token: data.token
+    };
+  } catch (error) {
+    console.error('Update profile API error:', error);
+    throw error;
+  }
+};
+
+export const forgotPassword = async (email) => {
+  try {
+    console.log('Forgot password API call with email:', email);
+    const response = await api.post('api/v1/auth/forgot-password', { email });
+    console.log('Forgot password API response:', response);
+    return response.data;
+  } catch (error) {
+    console.error('Forgot password API error:', error);
+    throw error;
+  }
+};
+
+export const resetPassword = async (resetToken, password) => {
+  try {
+    console.log('Reset password API call with token:', resetToken);
+    const response = await api.post(`api/v1/auth/reset-password/${resetToken}`, { password });
+    console.log('Reset password API response:', response);
+    return response.data;
+  } catch (error) {
+    console.error('Reset password API error:', error);
+    throw error;
+  }
+};
+
+export const changePassword = async (passwords) => {
+  try {
+    console.log('Change password API call');
+    const response = await api.put('api/v1/auth/change-password', passwords);
+    console.log('Change password API response:', response);
+    return response.data;
+  } catch (error) {
+    console.error('Change password API error:', error);
+    throw error;
+  }
 };
 
 // Search API endpoint
@@ -125,13 +245,39 @@ export const searchTasks = async (query) => {
 
 // Notification API endpoints
 export const getNotifications = async () => {
-  const response = await api.get('api/v1/notifications');
-  return response.data;
+  try {
+    console.log('Fetching notifications...');
+    const response = await api.get('api/v1/notifications');
+    console.log('Notifications response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    throw new Error(error.response?.data?.message || 'Failed to fetch notifications');
+  }
 };
 
 export const markAllNotificationsAsRead = async () => {
-  const response = await api.patch('api/v1/notifications/read-all');
-  return response.data;
+  try {
+    console.log('Marking all notifications as read...');
+    const response = await api.patch('api/v1/notifications/read-all');
+    console.log('Mark all read response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error marking notifications as read:', error);
+    throw new Error(error.response?.data?.message || 'Failed to mark notifications as read');
+  }
+};
+
+export const markNotificationAsRead = async (notificationId) => {
+  try {
+    console.log('Marking notification as read:', notificationId);
+    const response = await api.patch(`api/v1/notifications/${notificationId}/read`);
+    console.log('Mark read response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error marking notification as read:', error);
+    throw new Error(error.response?.data?.message || 'Failed to mark notification as read');
+  }
 };
 
 export const sendInvitation = async (inviteData) => {

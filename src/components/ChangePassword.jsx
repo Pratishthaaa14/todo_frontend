@@ -49,6 +49,8 @@ const ChangePassword = () => {
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
+      localStorage.removeItem('token');
+      window.location.href = '/login';
     } catch (error) {
       setError(error.response?.data?.message || 'Failed to change password');
       toast.error(error.response?.data?.message || 'Failed to change password');

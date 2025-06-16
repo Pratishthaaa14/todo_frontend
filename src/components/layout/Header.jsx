@@ -14,6 +14,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getNotifications,
   markAllNotificationsAsRead,
+  markNotificationAsRead,
 } from "../../services/api";
 import {
   Typography,
@@ -45,12 +46,20 @@ const Header = ({ searchQuery, setSearchQuery, searchCriteria, setSearchCriteria
     queryKey: ["notifications"],
     queryFn: getNotifications,
     staleTime: 0,
+    refetchInterval: 60000,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    retry: 3,
+    onError: (error) => {
+      console.error('Error fetching notifications:', error);
+      toast.error('Failed to fetch notifications');
+    }
   });
 
   const [notifications, setNotifications] = useState([]);
   useEffect(() => {
     if (notificationsData && Array.isArray(notificationsData.data)) {
+      console.log('Updating notifications:', notificationsData.data);
       setNotifications(notificationsData.data);
     }
   }, [notificationsData]);
@@ -59,12 +68,33 @@ const Header = ({ searchQuery, setSearchQuery, searchCriteria, setSearchCriteria
     mutationFn: markAllNotificationsAsRead,
     onSuccess: () => {
       queryClient.invalidateQueries(["notifications"]);
-      toast.success("Notifications marked as read!");
+      toast.success("All notifications marked as read!");
     },
     onError: (err) => {
+      console.error('Error marking notifications as read:', err);
       toast.error(err.message || "Failed to mark notifications as read.");
     },
   });
+
+  const markSingleReadMutation = useMutation({
+    mutationFn: markNotificationAsRead,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["notifications"]);
+      toast.success("Notification marked as read!");
+    },
+    onError: (err) => {
+      console.error('Error marking notification as read:', err);
+      toast.error(err.message || "Failed to mark notification as read.");
+    },
+  });
+
+  const handleMarkAsRead = (notificationId) => {
+    markSingleReadMutation.mutate(notificationId);
+  };
+
+  const handleMarkAllAsRead = () => {
+    markReadMutation.mutate();
+  };
 
   const unreadNotifications = notifications.filter((notif) => !notif.read);
   const unreadCount = unreadNotifications.length;
@@ -88,10 +118,6 @@ const Header = ({ searchQuery, setSearchQuery, searchCriteria, setSearchCriteria
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleMarkAllAsRead = () => {
-    markReadMutation.mutate();
-  };
-
   return (
     <>
       {/* Mobile Notification Icon */}
@@ -113,21 +139,21 @@ const Header = ({ searchQuery, setSearchQuery, searchCriteria, setSearchCriteria
           </button>
 
           {notificationsDropdownOpen && (
-            <Paper className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl z-10 p-4">
+            <Paper className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl z-50 p-4">
               <Typography variant="subtitle1" sx={{ fontWeight: "bold", mb: 2, color: "#333" }}>
                 Notifications
               </Typography>
-              {isLoading ? (
-                <Typography sx={{ textAlign: "center", py: 2 }}>Loading...</Typography>
-              ) : error ? (
-                <Typography color="error" sx={{ textAlign: "center", py: 2 }}>
-                  Error loading notifications.
-                </Typography>
-              ) : notifications.length === 0 ? (
-                <Typography sx={{ textAlign: "center", py: 2 }}>No new notifications.</Typography>
-              ) : (
-                <>
-                  <ul className="space-y-2 max-h-60 overflow-y-auto pr-2">
+              <div className="max-h-60 overflow-y-auto">
+                {isLoading ? (
+                  <Typography sx={{ textAlign: "center", py: 2 }}>Loading...</Typography>
+                ) : error ? (
+                  <Typography color="error" sx={{ textAlign: "center", py: 2 }}>
+                    Error loading notifications.
+                  </Typography>
+                ) : notifications.length === 0 ? (
+                  <Typography sx={{ textAlign: "center", py: 2 }}>No new notifications.</Typography>
+                ) : (
+                  <ul className="space-y-2">
                     {notifications.map((notif) => (
                       <li
                         key={notif._id}
@@ -135,29 +161,39 @@ const Header = ({ searchQuery, setSearchQuery, searchCriteria, setSearchCriteria
                           notif.read
                             ? "bg-gray-100 text-gray-600"
                             : "bg-red-50 text-[#EF4444] font-medium hover:bg-red-100"
-                        } transition-colors duration-200 cursor-pointer`}
+                        } transition-colors duration-200`}
                       >
-                        <Typography variant="body2">
-                          <strong>{notif.title}: </strong>
-                          {notif.message}
-                        </Typography>
-                        <Typography variant="caption" color="textSecondary">
-                          {new Date(notif.createdAt).toLocaleString()}
-                        </Typography>
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <Typography variant="body2">
+                              <strong>{notif.title}: </strong>
+                              {notif.message}
+                            </Typography>
+                            <Typography variant="caption" color="textSecondary">
+                              {new Date(notif.createdAt).toLocaleString()}
+                            </Typography>
+                          </div>
+                        </div>
                       </li>
                     ))}
                   </ul>
-                  {unreadCount > 0 && (
-                    <Button
-                      onClick={handleMarkAllAsRead}
-                      variant="contained"
-                      fullWidth
-                      sx={{ mt: 2, bgcolor: "#FF6767", "&:hover": { bgcolor: "#DC2626" } }}
-                    >
-                      Mark All as Read
-                    </Button>
-                  )}
-                </>
+                )}
+              </div>
+              {unreadCount > 0 && (
+                <Button
+                  onClick={handleMarkAllAsRead}
+                  variant="contained"
+                  fullWidth
+                  sx={{ 
+                    mt: 2, 
+                    bgcolor: "#FF6767", 
+                    "&:hover": { bgcolor: "#DC2626" },
+                    textTransform: "none",
+                    fontWeight: 600
+                  }}
+                >
+                  Mark All as Read
+                </Button>
               )}
             </Paper>
           )}
@@ -236,7 +272,6 @@ const Header = ({ searchQuery, setSearchQuery, searchCriteria, setSearchCriteria
           {/* Right Controls */}
           {user && (
             <div className="hidden sm:flex items-center gap-4 ml-4">
-              
               {/* Notifications Icon + Dropdown */}
               <div className="relative" ref={notificationRef}>
                 <button
@@ -256,17 +291,17 @@ const Header = ({ searchQuery, setSearchQuery, searchCriteria, setSearchCriteria
                     <Typography variant="subtitle1" sx={{ fontWeight: "bold", mb: 2, color: "#333" }}>
                       Notifications
                     </Typography>
-                    {isLoading ? (
-                      <Typography sx={{ textAlign: "center", py: 2 }}>Loading...</Typography>
-                    ) : error ? (
-                      <Typography color="error" sx={{ textAlign: "center", py: 2 }}>
-                        Error loading notifications.
-                      </Typography>
-                    ) : notifications.length === 0 ? (
-                      <Typography sx={{ textAlign: "center", py: 2 }}>No new notifications.</Typography>
-                    ) : (
-                      <>
-                        <ul className="space-y-2 max-h-60 overflow-y-auto pr-2">
+                    <div className="max-h-60 overflow-y-auto">
+                      {isLoading ? (
+                        <Typography sx={{ textAlign: "center", py: 2 }}>Loading...</Typography>
+                      ) : error ? (
+                        <Typography color="error" sx={{ textAlign: "center", py: 2 }}>
+                          Error loading notifications.
+                        </Typography>
+                      ) : notifications.length === 0 ? (
+                        <Typography sx={{ textAlign: "center", py: 2 }}>No new notifications.</Typography>
+                      ) : (
+                        <ul className="space-y-2">
                           {notifications.map((notif) => (
                             <li
                               key={notif._id}
@@ -274,35 +309,46 @@ const Header = ({ searchQuery, setSearchQuery, searchCriteria, setSearchCriteria
                                 notif.read
                                   ? "bg-gray-100 text-gray-600"
                                   : "bg-red-50 text-[#EF4444] font-medium hover:bg-red-100"
-                              } transition-colors duration-200 cursor-pointer`}
+                              } transition-colors duration-200`}
                             >
-                              <Typography variant="body2">
-                                <strong>{notif.title}: </strong>
-                                {notif.message}
-                              </Typography>
-                              <Typography variant="caption" color="textSecondary">
-                                {new Date(notif.createdAt).toLocaleString()}
-                              </Typography>
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <Typography variant="body2">
+                                    <strong>{notif.title}: </strong>
+                                    {notif.message}
+                                  </Typography>
+                                  <Typography variant="caption" color="textSecondary">
+                                    {new Date(notif.createdAt).toLocaleString()}
+                                  </Typography>
+                                </div>
+                                
+                              </div>
                             </li>
                           ))}
                         </ul>
-                        {unreadCount > 0 && (
-                          <Button
-                            onClick={handleMarkAllAsRead}
-                            variant="contained"
-                            fullWidth
-                            sx={{ mt: 2, bgcolor: "#FF6767", "&:hover": { bgcolor: "#DC2626" } }}
-                          >
-                            Mark All as Read
-                          </Button>
-                        )}
-                      </>
+                      )}
+                    </div>
+                    {unreadCount > 0 && (
+                      <Button
+                        onClick={handleMarkAllAsRead}
+                        variant="contained"
+                        fullWidth
+                        sx={{ 
+                          mt: 2, 
+                          bgcolor: "#FF6767", 
+                          "&:hover": { bgcolor: "#DC2626" },
+                          textTransform: "none",
+                          fontWeight: 600
+                        }}
+                      >
+                        Mark All as Read
+                      </Button>
                     )}
                   </Paper>
                 )}
               </div>
 
-              {/* Calendar */}
+              {/* Calendar Icon + Dropdown */}
               <div className="relative flex items-center gap-4" ref={calendarRef}>
                 <button
                   onClick={() => setCalendarDropdownOpen(!calendarDropdownOpen)}
@@ -311,36 +357,71 @@ const Header = ({ searchQuery, setSearchQuery, searchCriteria, setSearchCriteria
                   <CalendarTodayIcon sx={{ fontSize: 20 }} />
                 </button>
                 {calendarDropdownOpen && (
-                  <div className="absolute right-0 mt-3 w-72 bg-white shadow-md rounded-lg z-50">
-                    <div className="p-4 border-b border-gray-200 text-center font-semibold text-sm">
-                      {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
+                  <Paper className="absolute right-0 top-16 w-80 bg-white rounded-xl shadow-xl z-10 p-4">
+                    <div className="flex justify-between items-center mb-4">
+                      <Typography variant="subtitle1" sx={{ fontWeight: "bold", color: "#333" }}>
+                        Calendar
+                      </Typography>
                     </div>
-                    <div className="grid grid-cols-7 gap-1 p-2 text-center text-xs text-gray-500">
-                      {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
-                        <span key={day}>{day}</span>
-                      ))}
+                    <div className="border-t border-gray-200 pt-4">
+                      <div className="text-center font-semibold text-sm mb-2">
+                        {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
+                      </div>
+                      <div className="grid grid-cols-7 gap-1 text-center text-xs text-gray-500 mb-1">
+                        {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
+                          <span key={day}>{day}</span>
+                        ))}
+                      </div>
+                      <div className="grid grid-cols-7 gap-1 text-center text-sm">
+                        {(() => {
+                          const year = currentDate.getFullYear();
+                          const month = currentDate.getMonth();
+                          const firstDay = new Date(year, month, 1);
+                          const lastDay = new Date(year, month + 1, 0);
+                          const firstDayOfWeek = firstDay.getDay();
+                          const prevMonthLastDay = new Date(year, month, 0).getDate();
+                          const prevMonthDays = Array.from(
+                            { length: firstDayOfWeek },
+                            (_, i) => prevMonthLastDay - firstDayOfWeek + i + 1
+                          );
+                          const currentMonthDays = Array.from(
+                            { length: lastDay.getDate() },
+                            (_, i) => i + 1
+                          );
+                          const remainingDays = 42 - (prevMonthDays.length + currentMonthDays.length);
+                          const nextMonthDays = Array.from(
+                            { length: remainingDays },
+                            (_, i) => i + 1
+                          );
+                          const allDays = [
+                            ...prevMonthDays.map(day => ({ day, isCurrentMonth: false })),
+                            ...currentMonthDays.map(day => ({ day, isCurrentMonth: true })),
+                            ...nextMonthDays.map(day => ({ day, isCurrentMonth: false }))
+                          ];
+                          return allDays.map(({ day, isCurrentMonth }, index) => (
+                            <span
+                              key={index}
+                              className={`flex items-center justify-center h-8 w-8 rounded-full ${
+                                isCurrentMonth
+                                  ? day === currentDate.getDate()
+                                    ? 'bg-[#EF4444] text-white'
+                                    : 'hover:bg-gray-100'
+                                  : 'text-gray-400'
+                              }`}
+                            >
+                              {day}
+                            </span>
+                          ));
+                        })()}
+                      </div>
                     </div>
-                    <div className="grid grid-cols-7 gap-1 p-2 text-center text-sm">
-                      {Array.from(
-                        { length: new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate() },
-                        (_, i) => i + 1
-                      ).map(day => (
-                        <span
-                          key={day}
-                          className={`flex items-center justify-center h-8 w-8 rounded-full ${
-                            day === currentDate.getDate() ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'
-                          }`}
-                        >
-                          {day}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+                  </Paper>
                 )}
-                <div className="flex flex-col text-sm text-gray-800">
-                  <span className="font-semibold text-black">{dayOfWeek}</span>
-                  <span className="text-blue-500">{dateOnly}</span>
-                </div>
+              </div>
+              {/* Day and Date Display */}
+              <div className="flex flex-col items-start ml-4">
+                <span style={{ fontWeight: 700, fontSize: '1.1rem', color: '#111' }}>{dayOfWeek}</span>
+                <span style={{ color: '#2196f3', fontWeight: 500, fontSize: '1rem' }}>{dateOnly}</span>
               </div>
             </div>
           )}

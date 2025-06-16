@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { login as loginApi, register as registerApi, getProfile as getProfileApi, updateProfile as updateProfileApi } from '../services/api';
 import { toast } from 'react-toastify';
 
@@ -15,47 +15,69 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Function to update auth state
+  const updateAuthState = useCallback((userData, token) => {
+    console.log('Updating auth state with:', { userData, token });
+    if (token) {
+      localStorage.setItem('token', token);
+    }
+    setUser(userData);
+    setIsAuthenticated(!!userData);
+    console.log('Auth state updated:', { isAuthenticated: !!userData, user: userData });
+  }, []);
 
   // Check token and fetch user profile on mount
   useEffect(() => {
     const initializeAuth = async () => {
       const token = localStorage.getItem('token');
+      console.log('Initializing auth with token:', token ? 'exists' : 'none');
+      
       if (!token) {
+        console.log('No token found, setting auth state to false');
+        updateAuthState(null);
         setLoading(false);
         return;
       }
 
-    try {
+      try {
+        console.log('Fetching user profile with token');
         const userData = await getProfileApi();
+        console.log('User profile data:', userData);
+        
         if (userData) {
-          setUser(userData);
+          console.log('Setting user data and auth state to true');
+          updateAuthState(userData, token);
         } else {
-          // If no user data is returned, clear the token
-          localStorage.removeItem('token');
-          setUser(null);
+          console.log('No user data returned, clearing auth state');
+          updateAuthState(null);
         }
-    } catch (error) {
+      } catch (error) {
         console.error('Error fetching user profile:', error);
-        // Clear invalid token
-        localStorage.removeItem('token');
-        setUser(null);
+        updateAuthState(null);
       } finally {
         setLoading(false);
       }
     };
 
     initializeAuth();
-  }, []);
+  }, [updateAuthState]);
 
   const login = async (credentials) => {
     try {
+      console.log('Login attempt with credentials:', credentials);
       const response = await loginApi(credentials);
+      console.log('Login API response:', response);
+      
       const { data, token } = response;
       if (!token) {
         throw new Error('No token received from server');
       }
-      localStorage.setItem('token', token);
-      setUser(data);
+      
+      console.log('Storing token and user data:', { data, token });
+      updateAuthState(data, token);
+      
       toast.success('Successfully logged in!');
       return data;
     } catch (error) {
@@ -67,12 +89,18 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      const { data, token } = await registerApi(userData);
+      console.log('Registration attempt with data:', userData);
+      const response = await registerApi(userData);
+      console.log('Registration response:', response);
+      
+      const { data, token } = response;
       if (!token) {
         throw new Error('No token received from server');
       }
-      localStorage.setItem('token', token);
-      setUser(data);
+      
+      console.log('Storing token and user data:', { data, token });
+      updateAuthState(data, token);
+      
       toast.success('Account created successfully!');
       return data;
     } catch (error) {
@@ -83,18 +111,22 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    console.log('Logging out user');
     localStorage.removeItem('token');
-    setUser(null);
+    updateAuthState(null);
+    console.log('Auth state after logout:', { isAuthenticated: false, user: null });
     toast.success('Logged out successfully');
   };
 
   const updateProfile = async (userData) => {
     try {
-      const { data, token } = await updateProfileApi(userData);
-      if (token) {
-        localStorage.setItem('token', token);
-      }
-      setUser(data);
+      console.log('Updating profile with data:', userData);
+      const response = await updateProfileApi(userData);
+      console.log('Profile update response:', response);
+      
+      const { data, token } = response;
+      updateAuthState(data, token);
+      
       toast.success('Profile updated successfully');
       return data;
     } catch (error) {
@@ -107,6 +139,7 @@ export const AuthProvider = ({ children }) => {
   const value = {
     user,
     loading,
+    isAuthenticated,
     login,
     register,
     logout,
