@@ -49,7 +49,10 @@ const ResetPassword = () => {
         // Use the token and user data from the reset password response
         if (response.data.token && response.data.user) {
           console.log('Logging in with reset password response data');
-          await login(response.data.token, response.data.user);
+          // Store token in localStorage
+          localStorage.setItem('token', response.data.token);
+          // Call login with the user data
+          await login({ email: response.data.user.email, password });
           console.log('Login successful, redirecting to dashboard');
           navigate('/dashboard', { replace: true });
         } else {
@@ -63,7 +66,7 @@ const ResetPassword = () => {
 
             if (loginResponse.data.success) {
               console.log('Login successful with new password');
-              await login(loginResponse.data.token, loginResponse.data.user);
+              await login({ email: response.data.user.email, password });
               console.log('Login successful, redirecting to dashboard');
               navigate('/dashboard', { replace: true });
             } else {
