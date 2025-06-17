@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }) => {
         return;
       }
 
-      try {
+    try {
         console.log('Fetching user profile with token');
         const userData = await getProfileApi();
         console.log('User profile data:', userData);
@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }) => {
           console.log('No user data returned, clearing auth state');
           updateAuthState(null);
         }
-      } catch (error) {
+    } catch (error) {
         console.error('Error fetching user profile:', error);
         updateAuthState(null);
       } finally {

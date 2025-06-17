@@ -45,11 +45,11 @@ const TaskList = ({ onEditTask, searchQuery, searchCriteria, statusFilter, prior
     return [...filteredTasks].sort((a, b) => {
       const direction = sortDirection === 'desc' ? -1 : 1;
       
-      switch (sortBy) {
-        case "title":
+    switch (sortBy) {
+      case "title":
           return direction * a.title.localeCompare(b.title);
         
-        case "dueDate":
+      case "dueDate":
           const dateA = new Date(a.dueDate);
           const dateB = new Date(b.dueDate);
           // Handle null/invalid dates by putting them at the end
@@ -63,18 +63,18 @@ const TaskList = ({ onEditTask, searchQuery, searchCriteria, statusFilter, prior
           const createdAtB = new Date(b.createdAt);
           return direction * (createdAtA.getTime() - createdAtB.getTime());
         
-        case "priority":
-          const priorityOrder = { high: 3, medium: 2, low: 1 };
+      case "priority":
+      const priorityOrder = { high: 3, medium: 2, low: 1 };
           // For ascending: low→high, For descending: high→low
           return direction * (priorityOrder[a.priority] - priorityOrder[b.priority]);
         
-        default:
+      default:
           // Default to sort by creation date
           const defaultA = new Date(a.createdAt);
           const defaultB = new Date(b.createdAt);
           return direction * (defaultA.getTime() - defaultB.getTime());
-      }
-    });
+    }
+  });
   }, [filteredTasks, sortBy, sortDirection]);
 
   if (isLoading) {
@@ -104,13 +104,13 @@ const TaskList = ({ onEditTask, searchQuery, searchCriteria, statusFilter, prior
             {searchQuery || statusFilter !== "all" || priorityFilter !== "all"
               ? "Try adjusting your filters"
               : "Create a new task to get started"}
-          </Typography>
+      </Typography>
         </div>
-      ) : (
+            ) : (
         sortedTasks?.map((task) => (
           <TaskItem key={task._id} task={task} onEdit={onEditTask} />
         ))
-      )}
+            )}
     </div>
   );
 };

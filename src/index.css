@@ -43,3 +43,32 @@ body {
     @apply block text-sm font-medium text-gray-700;
   }
 }
+
+@media (min-width: 768px) and (max-width: 900px) {
+  .custom-searchbar-wrap-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+  }
+  .custom-searchbar-inner {
+    flex: 1 1 auto;
+    margin-right: 16px;
+    max-width: 70%;
+    padding-right: 1rem;
+    padding-left: 2rem;
+  }
+  .custom-notification-icon-row {
+    position: static !important;
+    margin-left: 1.5rem;
+    margin-top: 1rem !important;
+    margin-right: 0.5rem;
+  }
+}
+
+@media (min-width: 771px) and (max-width: 900px) {
+  .custom-searchbar-inner {
+    max-width: 60% !important;
+    width: 60% !important;
+  }
+}

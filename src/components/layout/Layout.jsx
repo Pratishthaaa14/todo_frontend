@@ -27,7 +27,7 @@ const Layout = () => {
   ];
   
   return (
-    <div className="flex flex-col min-h-screen bg-white font-poppins">
+    <div className="flex flex-col min-h-screen font-poppins">
       <Header 
         searchQuery={searchQuery} 
         setSearchQuery={setSearchQuery} 

@@ -8,14 +8,10 @@ import {
   Category as TaskCategoriesIcon,
   Settings as SettingsIcon,
   HelpOutline as HelpIcon,
-  Menu as MenuIcon,
 } from "@mui/icons-material";
 import {
   Typography,
   Avatar,
-  Box,
-  Drawer,
-  IconButton,
   useMediaQuery,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
@@ -23,19 +19,23 @@ import { useTheme } from "@mui/material/styles";
 const Sidebar = ({ user, logout, location }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const mainNavItems = [
     { path: "/dashboard", icon: <DashboardIcon sx={{ fontSize: 28 }} />, text: "Dashboard" },
+    { path: "/profile", icon: <SettingsIcon sx={{ fontSize: 28 }} />, text: "Profile" },
     { path: "/vital-task", icon: <VitalTaskIcon sx={{ fontSize: 28 }} />, text: "Vital Task" },
     { path: "/my-task", icon: <MyTaskIcon sx={{ fontSize: 28 }} />, text: "My Task" },
+    
+  ];
+
+  const additionalNavItems = [
     { path: "/task-categories", icon: <TaskCategoriesIcon sx={{ fontSize: 28 }} />, text: "Task Categories" },
     { path: "/settings", icon: <SettingsIcon sx={{ fontSize: 28 }} />, text: "Settings" },
     { path: "/help", icon: <HelpIcon sx={{ fontSize: 28 }} />, text: "Help" },
   ];
 
   const renderSidebarContent = (
-    <div className="w-80 bg-[#FF6767] text-white h-full flex flex-col rounded-tr-lg">
+    <div className="w-80 bg-[#FF6767] text-white h-screen flex flex-col rounded-tr-lg">
       <div className="flex flex-col items-center mt-10 px-5">
         <Avatar
           alt={user?.name || "User"}
@@ -78,34 +78,47 @@ const Sidebar = ({ user, logout, location }) => {
               </li>
             );
           })}
+
+          {/* Additional navigation items - only visible on large screens */}
+          {!isMobile && additionalNavItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            const itemClasses = `flex items-center p-2 rounded-lg text-lg font-semibold transition-all duration-200 ${
+              isActive ? "bg-white text-[#EF4444] shadow-md" : "hover:bg-red-500 text-white"
+            }`;
+            return (
+              <li key={item.path}>
+                <Link to={item.path} className={itemClasses}>
+                  {item.icon}
+                  <span className="ml-3">{item.text}</span>
+                </Link>
+              </li>
+            );
+          })}
+
+          {/* Logout button */}
+          <li className="mt-4">
+            <Link
+              to="/login"
+              onClick={() => {
+                logout();
+                isMobile && setDrawerOpen(false);
+              }}
+              className="flex items-center p-2 rounded-lg text-lg font-semibold transition-all duration-200 hover:bg-red-500 text-white"
+            >
+              <LogoutIcon sx={{ fontSize: 28 }} />
+              <span className="ml-3">Logout</span>
+            </Link>
+          </li>
         </ul>
       </div>
-
-      <Box sx={{ mt: "auto", pb: 2, px: 5 }}>
-        <Link
-          to="/login"
-          onClick={() => {
-            logout();
-            isMobile && setDrawerOpen(false);
-          }}
-          className="flex items-center p-2 rounded-lg text-lg font-semibold transition-all duration-200 hover:bg-red-500 text-white"
-        >
-          <LogoutIcon sx={{ fontSize: 28 }} />
-          <span className="ml-3">Logout</span>
-        </Link>
-      </Box>
     </div>
   );
 
   return (
     <>
-      
-
-      
-
       {/* Static sidebar for larger screens */}
       {!isMobile && (
-        <aside className="w-80 bg-[#FF6767] text-white flex flex-col shadow-lg h-screen rounded-tr-lg">
+        <aside className="w-80 bg-[#FF6767] min-h-screen text-white flex flex-col shadow-lg rounded-tr-lg">
           {renderSidebarContent}
         </aside>
       )}

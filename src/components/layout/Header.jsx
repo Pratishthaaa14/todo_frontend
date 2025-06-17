@@ -129,8 +129,8 @@ const Header = ({
   const handleClickOutside = (event) => {
     if (
       notificationsDropdownOpen &&
-      !event.target.closest('.notification-dropdown') &&
-      !event.target.closest('.notification-icon')
+      !event.target.closest(".notification-dropdown") &&
+      !event.target.closest(".notification-icon")
     ) {
       setNotificationsDropdownOpen(false);
     }
@@ -148,14 +148,14 @@ const Header = ({
       {/* Notification icon fixed top right on small/medium screens */}
       {user && (
         <div
-          className="lg:hidden fixed top-1 right-3 z-50 p-1 md:p-4"
+          className="lg:hidden fixed top-1 right-2 z-50 p-1 md:p-2"
           ref={notificationRef}
         >
           <button
             onClick={() =>
               setNotificationsDropdownOpen(!notificationsDropdownOpen)
             }
-            className="relative bg-[#EF4444] text-white rounded-lg h-8 w-8 md:h-10 md:w-10 flex items-center justify-center hover:bg-[#DC2626]"
+            className="relative bg-red-500 text-white rounded-lg h-8 w-8 flex items-center justify-center hover:bg-red-600 sm:h-7 sm:w-7 md:h-7 md:w-7 md:px-1 md:mt-0 lg:h-5 lg:w-5"
           >
             <NotificationsIcon sx={{ fontSize: 16, md: { fontSize: 20 } }} />
             {unreadCount > 0 && (
@@ -166,7 +166,7 @@ const Header = ({
           </button>
 
           {notificationsDropdownOpen && (
-            <Paper 
+            <Paper
               className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl z-50 p-4 notification-dropdown"
               onClick={(e) => e.stopPropagation()}
             >
@@ -277,7 +277,7 @@ const Header = ({
           </Link>
 
           {/* Search Bar (with hamburger on left for small/medium screens) */}
-          <div className="flex-grow flex justify-center w-full md:w-auto px-2 sm:px-4 lg:px-0 mt-2 md:mt-0">
+          <div className="flex-grow flex justify-center w-full md:w-[70px] px-2 sm:px-4 lg:px-0 mt-2 md:mr-5">
             <div className="flex items-center bg-gray-100 rounded-xl px-2 md:px-3 py-2 w-full max-w-xl shadow border border-gray-200 focus-within:ring-2 focus-within:ring-[#FF6767] transition-all">
               {/* Hamburger menu for small/medium screens */}
               <button
@@ -361,22 +361,23 @@ const Header = ({
               {/* Notifications Icon + Dropdown */}
               <div className="relative" ref={notificationRef}>
                 <div className="p-1">
-                  <IconButton
-                    className="notification-icon"
-                    onClick={() => setNotificationsDropdownOpen(!notificationsDropdownOpen)}
-                    sx={{
-                      color: "#333",
-                      "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
-                    }}
+                  <button
+                    onClick={() =>
+                      setNotificationsDropdownOpen(!notificationsDropdownOpen)
+                    }
+                    className="relative bg-[#EF4444] text-white mt-3 rounded-lg h-10 w-10 flex items-center justify-center hover:bg-[#DC2626] notification-icon"
                   >
-                    <Badge badgeContent={unreadCount} color="error">
-                      <NotificationsIcon />
-                    </Badge>
-                  </IconButton>
+                    <NotificationsIcon sx={{ fontSize: 20 }} />
+                    {unreadCount > 0 && (
+                      <span className="absolute top-[-5px] right-[-5px] bg-white text-[#EF4444] text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center shadow">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </button>
                 </div>
 
                 {notificationsDropdownOpen && (
-                  <Paper 
+                  <Paper
                     className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl z-50 p-4 notification-dropdown"
                     onClick={(e) => e.stopPropagation()}
                   >
@@ -464,7 +465,7 @@ const Header = ({
                 </button>
                 {calendarDropdownOpen && (
                   <Paper className="absolute right-0 top-16 w-80 bg-white rounded-xl shadow-xl z-10 p-4">
-                    <div className="flex justify-between items-center mb-4">
+                    <div className="flex justify-between items-center mb-2">
                       <Typography
                         variant="subtitle1"
                         sx={{ fontWeight: "bold", color: "#333" }}
@@ -472,7 +473,7 @@ const Header = ({
                         Calendar
                       </Typography>
                     </div>
-                    <div className="border-t border-gray-200 pt-4">
+                    <div className="border-t border-gray-200 pt-1">
                       <div className="text-center font-semibold text-sm mb-2">
                         {currentDate.toLocaleString("default", {
                           month: "long",

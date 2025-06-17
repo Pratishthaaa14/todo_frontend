@@ -44,7 +44,7 @@ const ChangePassword = () => {
     setLoading(true);
 
     try {
-      await api.put('/auth/change-password', { currentPassword, newPassword });
+      await api.put('/api/v1/auth/change-password', { currentPassword, newPassword });
       toast.success('Password has been changed successfully');
       setCurrentPassword('');
       setNewPassword('');
@@ -67,10 +67,10 @@ const ChangePassword = () => {
   };
 
   return (
-    <Card className="shadow-sm border-0 mb-4">
+    <Card className="shadow-sm border-0 mb-4 mt-8 mt-sm-0 pt-4 pt-sm-0">
       <Card.Body className="p-4">
-        <h4 className="mb-4 d-flex align-items-center">
-          <i className="fas fa-lock me-2 text-primary"></i>
+        <h4 className="mb-4 d-flex align-items-center mt-8">
+          <i className="fas fa-lock me-2 text-primary "></i>
           Change Password
         </h4>
         
@@ -124,7 +124,11 @@ const ChangePassword = () => {
                 <i className={`fas fa-${showPassword.new ? 'eye-slash' : 'eye'}`}></i>
               </Button>
             </div>
-            <PasswordStrengthIndicator password={newPassword} />
+            {newPassword ? (
+              <PasswordStrengthIndicator password={newPassword} />
+            ) : (
+              <small className="text-success">Enter password to check strength</small>
+            )}
           </Form.Group>
 
           <Form.Group className="mb-4">
@@ -149,11 +153,11 @@ const ChangePassword = () => {
             </div>
           </Form.Group>
 
-          <div className="d-grid">
+          <div className="d-grid ">
             <Button
               variant="primary"
               type="submit"
-              className="py-2"
+              className="py-2 bg-[#FF6767] text-white"
               disabled={loading}
             >
               {loading ? (
