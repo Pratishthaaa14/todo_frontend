@@ -197,8 +197,9 @@ const Header = ({
                         className={`p-3 rounded-lg ${
                           notif.read
                             ? "bg-gray-100 text-gray-600"
-                            : "bg-red-50 text-[#EF4444] font-medium hover:bg-red-100"
+                            : "bg-red-50 text-[#EF4444] font-medium hover:bg-red-100 cursor-pointer"
                         } transition-colors duration-200`}
+                        onClick={() => !notif.read && handleMarkAsRead(notif._id)}
                       >
                         <div className="flex justify-between items-start">
                           <div>
@@ -210,6 +211,11 @@ const Header = ({
                               {new Date(notif.createdAt).toLocaleString()}
                             </Typography>
                           </div>
+                          {!notif.read && (
+                            <span className="text-xs text-[#EF4444] font-medium">
+                              Click to mark as read
+                            </span>
+                          )}
                         </div>
                       </li>
                     ))}
@@ -411,8 +417,9 @@ const Header = ({
                               className={`p-3 rounded-lg ${
                                 notif.read
                                   ? "bg-gray-100 text-gray-600"
-                                  : "bg-red-50 text-[#EF4444] font-medium hover:bg-red-100"
+                                  : "bg-red-50 text-[#EF4444] font-medium hover:bg-red-100 cursor-pointer"
                               } transition-colors duration-200`}
+                              onClick={() => !notif.read && handleMarkAsRead(notif._id)}
                             >
                               <div className="flex justify-between items-start">
                                 <div>
