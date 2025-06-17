@@ -42,9 +42,9 @@ api.interceptors.response.use(
   },
   (error) => {
     if (error.response?.status === 401) {
-      // Clear token and redirect to login
+      // Clear token and allow app to handle unauthorized state
       localStorage.removeItem('token');
-      window.location.href = '/login';
+      // window.location.href = '/login'; // Commented out to allow toast to show
     }
     if (error.response) {
       // The request was made and the server responded with a status code

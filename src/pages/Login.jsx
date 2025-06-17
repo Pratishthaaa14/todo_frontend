@@ -17,11 +17,8 @@ const Login = () => {
   const { login, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
 
-  // Check if user is already authenticated
   useEffect(() => {
-    console.log('Login - Auth state:', { isAuthenticated, user });
     if (isAuthenticated && user) {
-      console.log('User is authenticated, redirecting to dashboard');
       navigate('/dashboard', { replace: true });
     }
   }, [isAuthenticated, user, navigate]);
@@ -29,14 +26,12 @@ const Login = () => {
   const validateForm = () => {
     const newErrors = {};
     
-    // Email validation
     if (!formData.email) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
     }
 
-    // Password validation
     if (!formData.password) {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 6) {
@@ -53,7 +48,6 @@ const Login = () => {
       ...prev,
       [name]: value
     }));
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -71,55 +65,10 @@ const Login = () => {
 
     try {
       setLoading(true);
-      console.log('Attempting login with:', { email: formData.email });
-      
-      // Call login and wait for it to complete
-      const userData = await login({ email: formData.email, password: formData.password });
-      console.log('Login successful, user data:', userData);
-      
-      // Check if we have user data
-      if (userData) {
-        console.log('User data received, waiting for auth state update');
-        
-        // Create a promise that resolves when auth state is updated
-        const waitForAuthState = () => {
-          return new Promise((resolve) => {
-            let attempts = 0;
-            const maxAttempts = 50; // 5 seconds maximum wait
-            
-            const checkState = () => {
-              console.log('Checking auth state:', { isAuthenticated, user });
-              if (isAuthenticated && user) {
-                console.log('Auth state updated successfully');
-                resolve(true);
-              } else if (attempts >= maxAttempts) {
-                console.log('Max attempts reached, auth state not updated');
-                resolve(false);
-              } else {
-                attempts++;
-                console.log(`Auth state not updated yet, attempt ${attempts}/${maxAttempts}`);
-                setTimeout(checkState, 100);
-              }
-            };
-            checkState();
-          });
-        };
-
-        // Wait for auth state to update
-        const authStateUpdated = await waitForAuthState();
-        
-        if (authStateUpdated) {
-          console.log('Auth state confirmed, navigating to dashboard');
-          navigate('/dashboard', { replace: true });
-        } else {
-          console.log('Auth state update failed');
-        }
-      } else {
-        console.log('No user data received from login');
-      }
+      await login({ email: formData.email, password: formData.password });
     } catch (err) {
       console.error('Login error:', err);
-    } finally {
+      toast.error('Invalid credentials. Please check your email and password.');
       setLoading(false);
     }
   };
@@ -213,11 +162,11 @@ const Login = () => {
               }}
             />
             <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
+              <FormControlLabel
+                control={<Checkbox value="remember" color="primary" />}
                 label="Remember me"
                 sx={{ color: '#6B7280' }}
-            />
+              />
               <Link to="/forgot-password" className="text-[#FF6767] hover:text-[#ff5252] text-sm transition duration-150 ease-in-out">
                 Forgot password?
               </Link>
@@ -250,7 +199,7 @@ const Login = () => {
                 <Link to="/register" className="text-[#FF6767] hover:text-[#ff5252] transition duration-150 ease-in-out">
                   Sign up
                 </Link>
-            </Typography>
+              </Typography>
             </Box>
           </Box>
         </Box>
