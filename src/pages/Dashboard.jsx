@@ -117,7 +117,7 @@ export const Dashboard = () => {
               }}
             >
               {" "}
-              {user?.email || "User"}
+              {user?.name || "User"}
             </span>{" "}
             👋
           </Typography>
