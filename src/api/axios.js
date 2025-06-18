@@ -9,14 +9,12 @@ const api = axios.create({
   timeout: 10000 // 10 seconds timeout
 });
 
-// Add a request interceptor to include the auth token
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    // Remove any double slashes in the URL
     if (config.url) {
       config.url = config.url.replace(/([^:]\/)\/+/g, "$1");
     }
@@ -35,7 +33,6 @@ api.interceptors.request.use(
   }
 );
 
-// Add a response interceptor for better error handling
 api.interceptors.response.use(
   (response) => {
     console.log('Response received:', {
@@ -49,13 +46,10 @@ api.interceptors.response.use(
     console.error('Response error:', error.response || error);
     
     if (error.response) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx
       console.error('Error data:', error.response.data);
       console.error('Error status:', error.response.status);
       console.error('Error headers:', error.response.headers);
       
-      // If the error is 404 and it's a POST request, try the request with /api/v1
       if (error.response.status === 404 && error.config.method === 'post') {
         const originalUrl = error.config.url;
         if (originalUrl.startsWith('/api/auth/')) {
@@ -72,10 +66,8 @@ api.interceptors.response.use(
         }
       }
     } else if (error.request) {
-      // The request was made but no response was received
       console.error('No response received:', error.request);
     } else {
-      // Something happened in setting up the request that triggered an Error
       console.error('Error message:', error.message);
     }
     

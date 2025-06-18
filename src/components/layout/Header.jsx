@@ -145,7 +145,7 @@ const Header = ({
 
   return (
     <>
-      {/* Notification icon fixed top right on small/medium screens */}
+      {/* Notification icon  */}
       {user && (
         <div
           className="lg:hidden fixed top-1 right-2 z-50 p-1 md:p-2"
@@ -255,12 +255,7 @@ const Header = ({
               sx={{
                 fontWeight: 700,
                 color: "#FF6767",
-                fontSize: {
-                  xs: "1.25rem", // 20px on extra small screens
-                  sm: "1.5rem", // 24px on small screens
-                  md: "1.75rem", // 28px on medium screens
-                  lg: "2rem", // 32px on large screens
-                },
+                fontSize: {xs: "1.25rem", sm: "1.5rem", md: "1.75rem",  lg: "2rem",},
               }}
             >
               ToDo
@@ -270,11 +265,7 @@ const Header = ({
                 fontWeight: 600,
                 color: "#000000",
                 ml: 0.5,
-                fontSize: {
-                  xs: "1.25rem",
-                  sm: "1.5rem",
-                  md: "1.75rem",
-                  lg: "2rem",
+                fontSize: {  xs: "1.25rem",  sm: "1.5rem",  md: "1.75rem",  lg: "2rem",
                 },
               }}
             >
@@ -282,7 +273,7 @@ const Header = ({
             </Typography>
           </Link>
 
-          {/* Search Bar (with hamburger on left for small/medium screens) */}
+          {/* Search Bar  */}
           <div className="flex-grow flex justify-center w-full md:w-[70px] px-2 sm:px-4 lg:px-0 mt-2 md:mr-5">
             <div className="flex items-center bg-gray-100 rounded-xl px-2 md:px-3 py-2 w-full max-w-xl shadow border border-gray-200 focus-within:ring-2 focus-within:ring-[#FF6767] transition-all">
               {/* Hamburger menu for small/medium screens */}
@@ -361,7 +352,7 @@ const Header = ({
             </div>
           </div>
 
-          {/* Right Controls (responsive) */}
+          {/* Right Controls */}
           {user && (
             <div className="hidden lg:flex items-center sm:px-8 sm:mb-2 gap-4 ml-4">
               {/* Notifications Icon + Dropdown */}
@@ -459,7 +450,7 @@ const Header = ({
                   </Paper>
                 )}
               </div>
-              {/* Calendar Icon + Dropdown (only on large screens) */}
+              {/* Calendar Icon + Dropdown */}
               <div
                 className="relative flex items-center gap-4 mt-3"
                 ref={calendarRef}
@@ -557,7 +548,7 @@ const Header = ({
                   </Paper>
                 )}
               </div>
-              {/* Day and Date Display (only on large screens) */}
+              {/* Day and Date Display  */}
               <div className="flex-col items-start ml-4 mt-3 hidden lg:flex">
                 <span
                   style={{ fontWeight: 700, fontSize: "1.1rem", color: "#111" }}

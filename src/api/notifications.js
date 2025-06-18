@@ -16,7 +16,6 @@ export const fetchNotifications = async () => {
   }
 };
 
-// Mark a notification as read
 export const markNotificationAsRead = async (notificationId) => {
   try {
     const { data } = await axios.patch(
@@ -34,7 +33,6 @@ export const markNotificationAsRead = async (notificationId) => {
   }
 };
 
-// Mark all notifications as read
 export const markAllNotificationsAsRead = async () => {
   try {
     const { data } = await axios.patch(
