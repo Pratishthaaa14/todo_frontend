@@ -5,22 +5,22 @@ import { DonutLarge as DonutLargeIcon } from '@mui/icons-material';
 const TaskStatusSection = ({ tasks, isLoading, error }) => {
   const calculateTaskStatus = () => {
     if (!tasks || tasks.length === 0) {
-      return { completed: 0, inProgress: 0, notStarted: 0, total: 0 };
+      return { 
+        completedPercentage: 0, 
+        inProgressPercentage: 0, 
+        notStartedPercentage: 0 
+      };
     }
 
+    const total = tasks.length;
     const completed = tasks.filter(task => task.status === 'completed').length;
     const inProgress = tasks.filter(task => task.status === 'in-progress').length;
     const notStarted = tasks.filter(task => task.status === 'pending').length;
-    const total = tasks.length;
 
     return {
-      completed,
-      inProgress,
-      notStarted,
-      total,
-      completedPercentage: total > 0 ? Math.round((completed / total) * 100) : 0,
-      inProgressPercentage: total > 0 ? Math.round((inProgress / total) * 100) : 0,
-      notStartedPercentage: total > 0 ? Math.round((notStarted / total) * 100) : 0,
+      completedPercentage: Math.round((completed / total) * 100),
+      inProgressPercentage: Math.round((inProgress / total) * 100),
+      notStartedPercentage: Math.round((notStarted / total) * 100),
     };
   };
 
@@ -61,7 +61,7 @@ const TaskStatusSection = ({ tasks, isLoading, error }) => {
                   }}
               >
                   <Typography variant="h6" component="div" sx={{ fontWeight: 700, color: color }}>
-                      {`${percentage}%`}
+                      {`${percentage || 0}%`}
                   </Typography>
               </Box>
           </Box>
