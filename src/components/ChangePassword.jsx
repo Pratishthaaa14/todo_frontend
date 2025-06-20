@@ -44,16 +44,13 @@ const ChangePassword = () => {
     setLoading(true);
 
     try {
-      await api.put('/api/v1/auth/change-password', { currentPassword, newPassword });
-      toast.success('Password has been changed successfully');
+      await api.put('api/v1/auth/update-password', { currentPassword, newPassword });
+      toast.success('Your password has been successfully updated.');
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
-      localStorage.removeItem('token');
-      window.location.href = '/login';
     } catch (error) {
-      setError(error.response?.data?.message || 'Failed to change password');
-      toast.error(error.response?.data?.message || 'Failed to change password');
+      toast.error(error.response?.data?.message || 'Failed to update your password. Please try again.');
     } finally {
       setLoading(false);
     }

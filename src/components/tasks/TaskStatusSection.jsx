@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Typography, CircularProgress } from '@mui/material';
-import { AssignmentTurnedInOutlined as AssignmentTurnedInOutlinedIcon } from '@mui/icons-material';
+import { DonutLarge as DonutLargeIcon } from '@mui/icons-material';
 
 const TaskStatusSection = ({ tasks, isLoading, error }) => {
   const calculateTaskStatus = () => {
@@ -26,39 +26,73 @@ const TaskStatusSection = ({ tasks, isLoading, error }) => {
 
   const { completedPercentage, inProgressPercentage, notStartedPercentage } = calculateTaskStatus();
 
+  const renderStatusCircle = (percentage, label, color) => (
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+              <CircularProgress
+                  variant="determinate"
+                  value={100}
+                  size={90}
+                  thickness={2}
+                  sx={{ color: '#e0e7ff' }}
+              />
+              <CircularProgress
+                  variant="determinate"
+                  value={percentage}
+                  size={90}
+                  thickness={3}
+                  sx={{
+                      color: color,
+                      position: 'absolute',
+                      left: 0,
+                      animation: '$progress-animation 1s ease-out',
+                  }}
+              />
+              <Box
+                  sx={{
+                      top: 0,
+                      left: 0,
+                      bottom: 0,
+                      right: 0,
+                      position: 'absolute',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                  }}
+              >
+                  <Typography variant="h6" component="div" sx={{ fontWeight: 700, color: color }}>
+                      {`${percentage}%`}
+                  </Typography>
+              </Box>
+          </Box>
+          <Typography variant="body2" sx={{ fontWeight: 600, color: '#4b5563' }}>
+              {label}
+          </Typography>
+      </Box>
+  );
+
   if (isLoading) {
     return (
-      <div className="bg-white shadow rounded-lg p-4 mb-4">
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
-          <AssignmentTurnedInOutlinedIcon sx={{ color: '#A0AEC0', fontSize: 28, mr: 1 }} />
-          <Typography variant="h5" sx={{ fontWeight: 600, color: '#EF4444' }}>Task Status</Typography>
-        </Box>
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 120 }}>
-          <CircularProgress />
-        </Box>
-      </div>
+      <Box sx={{ p: 3, border: '1px solid #ddd6fe', borderRadius: 2 }}>
+        <Typography>Loading Status...</Typography>
+        <CircularProgress />
+      </Box>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-white shadow rounded-lg p-4 mb-4">
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
-          <AssignmentTurnedInOutlinedIcon sx={{ color: '#A0AEC0', fontSize: 28, mr: 1 }} />
-          <Typography variant="h5" sx={{ fontWeight: 600, color: '#EF4444' }}>Task Status</Typography>
-        </Box>
-        <Typography variant="body2" sx={{ color: '#EF4444', textAlign: 'center' }}>
-          Error loading task status
-        </Typography>
-      </div>
+      <Box sx={{ p: 3, border: '1px solid #fecaca', borderRadius: 2 }}>
+        <Typography color="error">Error loading task status.</Typography>
+      </Box>
     );
   }
 
   return (
-    <div className="bg-white shadow rounded-lg p-4 mb-4">
+    <Box sx={{ border: '2px solid black', borderRadius: 0, p: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
-        <AssignmentTurnedInOutlinedIcon sx={{ color: '#A0AEC0', fontSize: 28, mr: 1 }} />
-        <Typography variant="h5" sx={{ fontWeight: 600, color: '#EF4444' }}>Task Status</Typography>
+        <DonutLargeIcon sx={{ color: '#5b21b6', fontSize: 28, mr: 1.5 }} />
+        <Typography variant="h5" sx={{ fontWeight: 700, color: '#5b21b6' }}>Task Status</Typography>
       </Box>
 
       <Box
@@ -67,106 +101,14 @@ const TaskStatusSection = ({ tasks, isLoading, error }) => {
           flexDirection: { xs: 'column', sm: 'row' },
           justifyContent: 'space-around',
           alignItems: 'center',
-          gap: { xs: 4, sm: 0 },
+          gap: { xs: 4, sm: 2 },
         }}
       >
-        {/* Completed */}
-        <Box sx={{ textAlign: 'center', my: { xs: 2, sm: 0 } }}>
-          <Box sx={{ position: 'relative', display: 'inline-flex' }}>
-            <CircularProgress
-              variant="determinate"
-              value={completedPercentage}
-              size={80}
-              thickness={5}
-              sx={{ color: '#22C55E' }}
-            />
-            <Box
-              sx={{
-                top: 0,
-                left: 0,
-                bottom: 0,
-                right: 0,
-                position: 'absolute',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Typography variant="h6" component="div" color="text.secondary" sx={{ fontWeight: 600 }}>
-                {`${completedPercentage || 0}%`}
-              </Typography>
-            </Box>
-          </Box>
-          <Typography variant="body2" sx={{ mt: 1, color: '#22C55E', fontWeight: 500 }}>
-            • Completed
-          </Typography>
-        </Box>
-
-        {/* In Progress */}
-        <Box sx={{ textAlign: 'center', my: { xs: 2, sm: 0 } }}>
-          <Box sx={{ position: 'relative', display: 'inline-flex' }}>
-            <CircularProgress
-              variant="determinate"
-              value={inProgressPercentage}
-              size={80}
-              thickness={5}
-              sx={{ color: '#3B82F6' }}
-            />
-            <Box
-              sx={{
-                top: 0,
-                left: 0,
-                bottom: 0,
-                right: 0,
-                position: 'absolute',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Typography variant="h6" component="div" color="text.secondary" sx={{ fontWeight: 600 }}>
-                {`${inProgressPercentage || 0}%`}
-              </Typography>
-            </Box>
-          </Box>
-          <Typography variant="body2" sx={{ mt: 1, color: '#3B82F6', fontWeight: 500 }}>
-            • In Progress
-          </Typography>
-        </Box>
-
-        {/* Not Started */}
-        <Box sx={{ textAlign: 'center', my: { xs: 2, sm: 0 } }}>
-          <Box sx={{ position: 'relative', display: 'inline-flex' }}>
-            <CircularProgress
-              variant="determinate"
-              value={notStartedPercentage}
-              size={80}
-              thickness={5}
-              sx={{ color: '#EF4444' }}
-            />
-            <Box
-              sx={{
-                top: 0,
-                left: 0,
-                bottom: 0,
-                right: 0,
-                position: 'absolute',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Typography variant="h6" component="div" color="text.secondary" sx={{ fontWeight: 600 }}>
-                {`${notStartedPercentage || 0}%`}
-              </Typography>
-            </Box>
-          </Box>
-          <Typography variant="body2" sx={{ mt: 1, color: '#EF4444', fontWeight: 500 }}>
-            • Not Started
-          </Typography>
-        </Box>
+        {renderStatusCircle(completedPercentage, 'Completed', '#16a34a')}
+        {renderStatusCircle(inProgressPercentage, 'In Progress', '#3b82f6')}
+        {renderStatusCircle(notStartedPercentage, 'Not Started', '#ef4444')}
       </Box>
-    </div>
+    </Box>
   );
 };
 

@@ -4,11 +4,15 @@ import { toast } from 'react-toastify';
 import api from '../api/axios';
 import LoadingSpinner from './LoadingSpinner';
 import { useAuth } from '../context/AuthContext';
+import { Button, TextField, Typography, Paper, Box, IconButton, InputAdornment } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 const ResetPassword = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
   const { resetToken } = useParams();
   const { login, isAuthenticated, user } = useAuth();
@@ -26,12 +30,14 @@ const ResetPassword = () => {
     e.preventDefault();
     
     if (password !== confirmPassword) {
-      toast.error('Passwords do not match');
+      setLoading(false);
+      toast.error("Heads up! The passwords don't match.");
       return;
     }
 
     if (password.length < 6) {
-      toast.error('Password must be at least 6 characters long');
+      setLoading(false);
+      toast.error('Password should be at least 6 characters long.');
       return;
     }
 
@@ -46,7 +52,7 @@ const ResetPassword = () => {
       console.log('Reset password response:', response);
       
       if (response.data.success) {
-        toast.success(response.data.message || 'Password has been reset successfully');
+        toast.success(response.data.message || 'Great! Your password has been reset.');
         
         // Use the token and user data from the reset password response
         if (response.data.token && response.data.user) {
@@ -73,7 +79,7 @@ const ResetPassword = () => {
             }, 1000);
           } catch (loginError) {
             console.error('Login error:', loginError);
-            toast.error('Password reset successful. Please log in with your new password.');
+            toast.error('Password reset! Please log in with your new password to continue.');
             navigate('/login', { replace: true });
           }
         } else {
@@ -105,98 +111,166 @@ const ResetPassword = () => {
               }, 1000);
             } else {
               console.log('Login failed, redirecting to login page');
-              toast.error('Please log in with your new password');
+              toast.info('Please sign in with your new password.');
               navigate('/login', { replace: true });
             }
           } catch (loginError) {
             console.error('Auto-login error:', loginError);
-            toast.error('Password reset successful. Please log in with your new password.');
+            toast.info('Password updated. Please log in to continue.');
             navigate('/login', { replace: true });
           }
         }
       } else {
-        toast.error(response.data.message || 'Failed to reset password');
+        toast.error(response.data.message || 'Sorry, we couldn\'t reset your password.');
       }
     } catch (error) {
       console.error('Reset password error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to reset password';
+      const errorMessage = error.response?.data?.message || 'An error occurred. Please try again.';
       toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+  const handleClickShowConfirmPassword = () => setShowConfirmPassword((show) => !show);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-lg">
-        <div>
-          <h2 className="mt-2 text-center text-3xl font-extrabold text-gray-900">
-            Reset Your Password
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Please enter your new password below
-          </p>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm space-y-4">
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                New Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-[#FF6767] focus:border-[#FF6767] focus:z-10 sm:text-sm transition duration-150 ease-in-out"
-                placeholder="Enter new password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                Confirm Password
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                required
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-[#FF6767] focus:border-[#FF6767] focus:z-10 sm:text-sm transition duration-150 ease-in-out"
-                placeholder="Confirm new password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[#FF6767] hover:bg-[#ff5252] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF6767] transition duration-150 ease-in-out transform hover:scale-[1.02]"
-            >
-              {loading ? (
-                <LoadingSpinner text="Resetting..." />
-              ) : (
-                'Reset Password'
-              )}
-            </button>
-          </div>
-
-          <div className="text-center">
-            <button
-              type="button"
-              onClick={() => navigate('/login')}
-              className="text-sm text-[#FF6767] hover:text-[#ff5252] transition duration-150 ease-in-out"
-            >
-              Back to Login
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        bgcolor: 'grey.100',
+        p: { xs: 2, sm: 3 },
+      }}
+    >
+      <Paper
+        elevation={6}
+        sx={{
+          p: 4,
+          maxWidth: 400,
+          width: '100%',
+          borderRadius: 3,
+        }}
+      >
+        <Typography variant="h4" component="h1" sx={{ fontWeight: 700, color: 'primary.main', mb: 1, textAlign: 'center' }}>
+          Reset Your Password
+        </Typography>
+        <Typography variant="body1" sx={{ mb: 4, textAlign: 'center', color: 'text.secondary' }}>
+          Please enter your new password below.
+        </Typography>
+        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="password"
+            label="New Password"
+            type={showPassword ? 'text' : 'password'}
+            id="password"
+            autoComplete="new-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            variant="filled"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+            sx={{
+              '& .MuiFilledInput-root': {
+                backgroundColor: 'secondary.light',
+                borderRadius: 2,
+                '&:before, &:after': {
+                  borderBottom: 'none',
+                },
+              },
+              '& .MuiInputLabel-root': {
+                color: 'primary.dark',
+              },
+            }}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="confirmPassword"
+            label="Confirm Password"
+            type={showConfirmPassword ? 'text' : 'password'}
+            id="confirmPassword"
+            autoComplete="new-password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            variant="filled"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle confirm password visibility"
+                    onClick={handleClickShowConfirmPassword}
+                    edge="end"
+                  >
+                    {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+            sx={{
+              '& .MuiFilledInput-root': {
+                backgroundColor: 'secondary.light',
+                borderRadius: 2,
+                '&:before, &:after': {
+                  borderBottom: 'none',
+                },
+              },
+              '& .MuiInputLabel-root': {
+                color: 'primary.dark',
+              },
+            }}
+          />
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            disabled={loading}
+            sx={{
+              mt: 3,
+              mb: 2,
+              py: 1.5,
+              borderRadius: 2,
+              fontWeight: 'bold',
+              bgcolor: 'primary.main',
+              '&:hover': {
+                bgcolor: 'primary.dark',
+              },
+            }}
+          >
+            {loading ? <LoadingSpinner size={24} /> : 'Reset Password'}
+          </Button>
+          <Button
+            fullWidth
+            onClick={() => navigate('/login')}
+            sx={{
+              color: 'primary.main',
+              fontWeight: 'bold',
+              textTransform: 'none',
+            }}
+          >
+            Back to Login
+          </Button>
+        </Box>
+      </Paper>
+    </Box>
   );
 };
 

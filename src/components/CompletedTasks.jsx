@@ -1,15 +1,15 @@
 import React from 'react';
 import { Typography } from '@mui/material';
 import TaskList from './tasks/TaskList';
-import { CheckCircleOutline as CheckCircleOutlineIcon } from '@mui/icons-material';
+import { TaskAlt as TaskAltIcon } from '@mui/icons-material';
 
 const CompletedTasks = ({ onEditTask, searchQuery, searchCriteria, priorityFilter, sortBy, sortDirection }) => {
   return (
     <div>
-      <div className="bg-white shadow rounded-lg p-4">
+      <div className="bg-white p-4">
         <div className="flex items-center mb-4">
-          <CheckCircleOutlineIcon sx={{ color: '#A0AEC0', fontSize: 28, mr: 1 }} />
-          <Typography variant="h5" sx={{ fontWeight: 600, color: '#EF4444' }}>
+          <TaskAltIcon sx={{ color: '#5b21b6', fontSize: 28, mr: 1.5 }} />
+          <Typography variant="h5" sx={{ fontWeight: 700, color: '#5b21b6' }}>
             Completed Tasks
           </Typography>
         </div>

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { login as loginApi, register as registerApi, getProfile as getProfileApi, updateProfile as updateProfileApi } from '../services/api';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext();
 
@@ -16,6 +17,8 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [token, setToken] = useState(null);
+  const navigate = useNavigate();
 
   // Function to update auth state
   const updateAuthState = useCallback((userData, token) => {
@@ -78,7 +81,7 @@ export const AuthProvider = ({ children }) => {
       console.log('Storing token and user data:', { data, token });
       updateAuthState(data, token);
       
-      toast.success('Successfully logged in!');
+      toast.success('Welcome back! You are now logged in.');
       return data;
     } catch (error) {
       console.error('Login error:', error);
@@ -112,7 +115,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     updateAuthState(null);
     console.log('Auth state after logout:', { isAuthenticated: false, user: null });
-    toast.success('Logged out successfully');
+    toast.success('You have been successfully logged out. See you next time!');
+    navigate("/login");
   };
 
   const updateProfile = async (userData) => {
@@ -124,11 +128,11 @@ export const AuthProvider = ({ children }) => {
       const { data, token } = response;
       updateAuthState(data, token);
       
-      toast.success('Profile updated successfully');
+      toast.success('Your profile has been updated!');
       return data;
     } catch (error) {
       console.error('Profile update error:', error);
-      toast.error(error.response?.data?.message || 'Profile update failed');
+      toast.error(error.response?.data?.message || 'Oops! Could not update your profile.');
       throw error;
     }
   };

@@ -12,6 +12,7 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  Chip,
 } from '@mui/material';
 import {
   MoreVert as MoreIcon,
@@ -19,22 +20,24 @@ import {
   Delete as DeleteIcon,
   RadioButtonUnchecked as RadioButtonUncheckedIcon,
   CheckCircle as CheckCircleIcon,
+  SignalCellularAlt as PriorityIcon,
+  FiberManualRecord as StatusIcon,
 } from '@mui/icons-material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { updateTask, deleteTask } from '../../services/api';
 import { format } from 'date-fns';
 import { toast } from 'react-toastify';
 
-const priorityColors = {
-  high: { text: '#EF4444' },
-  medium: { text: '#F59E0B' },
-  low: { text: '#10B981' },
+const priorityConfig = {
+  high: { label: 'High', color: '#ef4444', iconColor: '#f87171' },
+  medium: { label: 'Medium', color: '#f97316', iconColor: '#fb923c' },
+  low: { label: 'Low', color: '#22c55e', iconColor: '#4ade80' },
 };
 
-const statusColors = {
-  pending: { text: '#EF4444' },
-  'in-progress': { text: '#3B82F6' },
-  completed: { text: '#22C55E' },
+const statusConfig = {
+  pending: { label: 'Pending', color: '#64748b' },
+  'in-progress': { label: 'In Progress', color: '#3b82f6' },
+  completed: { label: 'Completed', color: '#16a34a' },
 };
 
 const TaskItem = ({ task, onEdit }) => {
@@ -46,10 +49,10 @@ const TaskItem = ({ task, onEdit }) => {
     mutationFn: (updatedData) => updateTask(task._id, updatedData),
     onSuccess: () => {
       queryClient.invalidateQueries(['tasks']);
-      toast.success('Task updated successfully');
+      toast.success('Task updated!');
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to update task');
+      toast.error(error.response?.data?.message || 'Could not update the task.');
     },
   });
 
@@ -57,11 +60,11 @@ const TaskItem = ({ task, onEdit }) => {
     mutationFn: () => deleteTask(task._id),
     onSuccess: () => {
       queryClient.invalidateQueries(['tasks']);
-      toast.success('Task deleted successfully');
+      toast.success('Task has been deleted.');
       setDeleteDialogOpen(false);
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to delete task');
+      toast.error(error.response?.data?.message || 'Failed to delete the task.');
     },
   });
 
@@ -77,41 +80,45 @@ const TaskItem = ({ task, onEdit }) => {
   };
   const confirmDelete = () => deleteTaskMutation.mutate();
 
+  const priority = priorityConfig[task.priority];
+  const status = statusConfig[task.status];
+
   return (
     <>
       <Card
         sx={{
-          p: 2,
-          borderRadius: 3,
-          boxShadow: 2,
+          p: 2.5,
+          borderRadius: 0,
+          boxShadow: 'none',
+          border: '2px solid black',
           display: 'flex',
           flexDirection: 'column',
-          gap: 1,
+          gap: 1.5,
+          backgroundColor: '#fafafa',
         }}
       >
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <Checkbox
               checked={task.status === 'completed'}
               onChange={handleStatusToggle}
-              icon={<RadioButtonUncheckedIcon sx={{ color: '#3B82F6' }} />}
-              checkedIcon={<CheckCircleIcon sx={{ color: '#22C55E' }} />}
+              icon={<RadioButtonUncheckedIcon sx={{ color: '#94a3b8' }} />}
+              checkedIcon={<CheckCircleIcon sx={{ color: '#16a34a' }} />}
               sx={{ p: 0 }}
             />
             <Typography
               variant="subtitle1"
               sx={{
                 fontWeight: 600,
-                color: '#000',
-                fontSize: { xs: '1rem', sm: '1.05rem' },
-                wordBreak: 'break-word',
+                color: '#1f2937',
+                fontSize: '1.1rem',
               }}
             >
               {task.title}
             </Typography>
           </Box>
           <IconButton onClick={handleMenuOpen}>
-            <MoreIcon sx={{ color: '#9CA3AF' }} />
+            <MoreIcon sx={{ color: '#6b7280' }} />
           </IconButton>
         </Box>
 
@@ -119,9 +126,9 @@ const TaskItem = ({ task, onEdit }) => {
           <Typography
             variant="body2"
             sx={{
-              color: '#4B5563',
-              fontSize: { xs: '0.88rem', sm: '0.95rem' },
-              whiteSpace: 'pre-wrap',
+              color: '#4b5563',
+              fontSize: '0.95rem',
+              pl: '42px', 
             }}
           >
             {task.description}
@@ -131,51 +138,47 @@ const TaskItem = ({ task, onEdit }) => {
         <Box
           sx={{
             display: 'flex',
-            flexDirection: { xs: 'column', sm: 'row' },
+            alignItems: 'center',
             justifyContent: 'space-between',
             mt: 1,
-            gap: { xs: 0.5, sm: 1.5 },
-            borderTop: { xs: '1px solid #E5E7EB', sm: 'none' },
-            pt: { xs: 1, sm: 0 },
+            pt: 1.5,
+            borderTop: '1px solid #e5e7eb',
           }}
         >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Chip
+              icon={<PriorityIcon />}
+              label={priority.label}
+              size="small"
+              sx={{
+                bgcolor: priority.color,
+                color: 'white',
+                fontWeight: 500,
+                '& .MuiChip-icon': {
+                  color: priority.iconColor,
+                }
+              }}
+            />
+            <Chip
+              icon={<StatusIcon />}
+              label={status.label}
+              size="small"
+              sx={{
+                bgcolor: status.color,
+                color: 'white',
+                fontWeight: 500,
+                '& .MuiChip-icon': {
+                  fontSize: '1rem',
+                  color: 'white'
+                }
+              }}
+            />
+          </Box>
           <Typography
             variant="caption"
-            sx={{
-              fontSize: { xs: '0.7rem', sm: '0.8rem' },
-              color: '#000',
-              fontWeight: 500,
-            }}
+            sx={{ color: '#6b7280', fontWeight: 'medium' }}
           >
-            Priority:{' '}
-            <span style={{ color: priorityColors[task.priority]?.text }}>
-              {task.priority}
-            </span>
-          </Typography>
-          <Typography
-            variant="caption"
-            sx={{
-              fontSize: { xs: '0.7rem', sm: '0.8rem' },
-              color: '#000',
-              fontWeight: 500,
-            }}
-          >
-            Status:{' '}
-            <span style={{ color: statusColors[task.status]?.text }}>
-              {task.status}
-            </span>
-          </Typography>
-          <Typography
-            variant="caption"
-            sx={{ color: '#6B7280', fontSize: { xs: '0.68rem', sm: '0.75rem' },fontWeight: 'bold' }}
-          >
-            Created: {format(new Date(task.createdAt), 'dd/MM/yyyy')}
-            {task.dueDate && (
-              <>
-                <br />
-                Due: {format(new Date(task.dueDate), 'dd/MM/yyyy')}
-              </>
-            )}
+            {format(new Date(task.createdAt), 'MMM d, yyyy')}
           </Typography>
         </Box>
 
@@ -186,24 +189,24 @@ const TaskItem = ({ task, onEdit }) => {
               handleMenuClose();
             }}
           >
-            <EditIcon sx={{ mr: 1 }} /> Edit
+            <EditIcon sx={{ mr: 1, fontSize: '1.25rem' }} /> Edit
           </MenuItem>
-          <MenuItem onClick={handleDelete}>
-            <DeleteIcon sx={{ mr: 1 }} /> Delete
+          <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
+            <DeleteIcon sx={{ mr: 1, fontSize: '1.25rem' }} /> Delete
           </MenuItem>
         </Menu>
 
         <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
-          <DialogTitle>Confirm Delete</DialogTitle>
+          <DialogTitle>Confirm Deletion</DialogTitle>
           <DialogContent>
-            <Typography>Are you sure you want to delete this task?</Typography>
+            <Typography>Are you sure you want to permanently delete this task?</Typography>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setDeleteDialogOpen(false)} color="primary">
+            <Button onClick={() => setDeleteDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={confirmDelete} color="error">
-              Delete
+            <Button onClick={confirmDelete} color="error" variant="contained">
+              Delete Task
             </Button>
           </DialogActions>
         </Dialog>

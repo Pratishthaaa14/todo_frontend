@@ -1,14 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
-import { Typography } from '@mui/material';
+import { Typography, InputBase, Badge, Avatar, Box, IconButton } from '@mui/material';
 import { toast } from 'react-toastify';
 import SearchIcon from '@mui/icons-material/Search';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import MenuIcon from '@mui/icons-material/Menu';
-import { Avatar } from '@mui/material';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { fetchNotifications, markAllNotificationsAsRead } from '../api/notifications';
+import { format } from 'date-fns';
 
 const Header = ({ searchQuery, setSearchQuery }) => {
   const { user, logout } = useAuth();
@@ -18,8 +17,7 @@ const Header = ({ searchQuery, setSearchQuery }) => {
   const notificationRef = useRef(null);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
-  const unreadNotifications = notifications.filter(notif => !notif.read);
-  const unreadCount = unreadNotifications.length;
+  const unreadCount = notifications.filter(notif => !notif.read).length;
 
   useEffect(() => {
     const loadNotifications = async () => {
@@ -35,7 +33,6 @@ const Header = ({ searchQuery, setSearchQuery }) => {
     };
 
     loadNotifications();
-    // Refresh notifications every 30 seconds
     const interval = setInterval(loadNotifications, 30000);
     return () => clearInterval(interval);
   }, []);
@@ -67,101 +64,105 @@ const Header = ({ searchQuery, setSearchQuery }) => {
     navigate("/login");
   };
 
+  const today = new Date();
+  const formattedDate = format(today, "EEEE, MMMM d");
+
   return (
     <header className="bg-white shadow-sm sticky top-0 z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Mobile menu button */}
-          <div className="flex items-center lg:hidden">
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none"
-            >
-              <MenuIcon />
-            </button>
-          </div>
-
-          {/* Logo */}
+        <div className="flex items-center justify-between h-20">
           <div className="flex items-center">
-            <Typography variant="h5" sx={{ fontWeight: 600, color: '#EF4444' }} className="text-lg sm:text-xl">
-              Dashboard
+            <Typography variant="h5" sx={{ fontWeight: 700, color: '#5b21b6' }} className="text-xl sm:text-2xl">
+              ToDo Flow
             </Typography>
           </div>
 
-          {/* Search bar - hidden on mobile */}
-          <div className="hidden md:flex items-center flex-1 max-w-lg mx-4">
-            <div className="relative flex items-center bg-gray-50 rounded-full px-4 py-2 shadow-inner border border-gray-200 w-full">
-              <input
-                type="text"
-                placeholder="Search your task here..."
+          <div className="flex-1 mx-4 sm:mx-6 lg:mx-8">
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                backgroundColor: '#f3e8ff',
+                borderRadius: '9999px',
+                p: '4px 8px',
+                maxWidth: '500px',
+                mx: 'auto',
+              }}
+            >
+              <InputBase
+                placeholder="Search by title or description..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent outline-none flex-grow text-gray-700 placeholder-gray-400 pr-2"
+                sx={{
+                  color: '#5b21b6',
+                  flex: 1,
+                  ml: 1,
+                  '& .MuiInputBase-input::placeholder': {
+                    color: '#9333ea',
+                    opacity: 1,
+                  },
+                }}
               />
-              <button className="p-2 bg-red-500 rounded-full text-white hover:bg-red-600 transition-colors duration-200">
-                <SearchIcon sx={{ fontSize: 20 }} />
-              </button>
-            </div>
+              <IconButton sx={{ p: '10px', color: '#5b21b6' }} aria-label="search">
+                <SearchIcon />
+              </IconButton>
+            </Box>
           </div>
 
-          {/* Right side icons and user info */}
-          <div className="flex items-center gap-2 sm:gap-4">
-            {/* Mobile search button */}
-            <button className="md:hidden p-2 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition-colors duration-200">
-              <SearchIcon />
-            </button>
+          <div className="flex items-center gap-4">
+            <Typography sx={{ display: { xs: 'none', md: 'block' }, color: '#5b21b6' }}>
+              {formattedDate}
+            </Typography>
 
-            {/* Notifications */}
             <div ref={notificationRef} className="relative">
-              <button
+              <IconButton
                 onClick={() => setNotificationsDropdownOpen(!notificationsDropdownOpen)}
-                className="p-2 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition-colors relative"
+                sx={{
+                  backgroundColor: '#f3e8ff',
+                  color: '#5b21b6',
+                  '&:hover': { backgroundColor: '#e9d5ff' },
+                }}
               >
-                <NotificationsIcon />
-                {unreadCount > 0 && (
-                  <span className="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-purple-600 rounded-full">
-                    {unreadCount}
-                  </span>
-                )}
-              </button>
+                <Badge badgeContent={unreadCount} color="secondary">
+                  <NotificationsIcon />
+                </Badge>
+              </IconButton>
               {notificationsDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-80 bg-white shadow-md rounded-xl overflow-hidden z-20">
-                  <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>Notifications</Typography>
+                <div className="absolute right-0 mt-2 w-80 bg-white shadow-lg rounded-xl overflow-hidden z-20 border border-purple-100">
+                  <div className="p-4 border-b border-purple-100 flex justify-between items-center">
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#5b21b6' }}>Notifications</Typography>
                     {unreadCount > 0 && (
                       <button
                         onClick={handleMarkAllAsRead}
-                        className="text-xs text-purple-600 hover:text-purple-800"
+                        className="text-xs text-purple-600 hover:text-purple-800 font-semibold"
                       >
                         Mark all as read
                       </button>
                     )}
                   </div>
-                  <div className="max-h-60 overflow-y-auto">
+                  <div className="max-h-80 overflow-y-auto">
                     {loading ? (
-                      <div className="p-4 text-center text-gray-500">Loading notifications...</div>
+                      <div className="p-4 text-center text-gray-500">Loading...</div>
                     ) : notifications.length === 0 ? (
-                      <div className="p-4 text-center text-gray-500">No notifications</div>
+                      <div className="p-4 text-center text-gray-500">No new notifications</div>
                     ) : (
                       notifications.map((notif) => (
                         <div
                           key={notif._id}
-                          className={`p-4 border-b border-gray-200 hover:bg-gray-50 flex items-start gap-3 ${
-                            !notif.read ? 'bg-purple-50' : ''
+                          className={`p-4 border-b border-purple-50 flex items-start gap-3 transition-colors ${
+                            !notif.read ? 'bg-purple-50' : 'hover:bg-purple-100'
                           }`}
                         >
-                          <div className="flex-shrink-0 w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
-                            <NotificationsIcon sx={{ color: '#7E22CE' }} />
-                          </div>
+                          <div className={`flex-shrink-0 w-3 h-3 rounded-full mt-1.5 ${!notif.read ? 'bg-purple-500' : 'bg-transparent'}`}></div>
                           <div className="flex-1">
                             <Typography
                               variant="body2"
-                              sx={{ fontWeight: notif.read ? 400 : 600 }}
+                              sx={{ fontWeight: notif.read ? 400 : 600, color: '#374151' }}
                             >
                               {notif.message}
                             </Typography>
                             <Typography variant="caption" color="text.secondary">
-                              {new Date(notif.createdAt).toLocaleString()}
+                              {format(new Date(notif.createdAt), "PPpp")}
                             </Typography>
                           </div>
                         </div>
@@ -172,61 +173,44 @@ const Header = ({ searchQuery, setSearchQuery }) => {
               )}
             </div>
 
-            {/* Calendar - hidden on mobile */}
-            <button className="hidden sm:block p-2 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition-colors duration-200">
-              <CalendarMonthIcon />
-            </button>
-
-            {/* Date - hidden on mobile */}
-            <div className="hidden sm:flex text-sm text-gray-600 flex-col items-end">
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                {new Date().toLocaleDateString('en-US', { weekday: 'long' })}
-              </Typography>
-              <Typography variant="caption" color="text.secondary" sx={{ color: '#3B82F6' }}>
-                {new Date().toLocaleDateString()}
-              </Typography>
-            </div>
-
-            {/* User avatar */}
-            <Avatar sx={{ bgcolor: '#EDE9FE', color: '#7E22CE', fontWeight: 'bold' }}>
-              {user?.name?.charAt(0) || 'U'}
+            <Avatar sx={{ bgcolor: '#7c3aed', color: '#ffffff', fontWeight: 'bold' }}>
+              {user?.name?.charAt(0)?.toUpperCase() || 'U'}
             </Avatar>
+
+            <IconButton
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none lg:hidden"
+            >
+              <MenuIcon />
+            </IconButton>
           </div>
         </div>
 
-        {/* Mobile menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-200">
-            <div className="px-2 space-y-3">
-              {/* Mobile search bar */}
-              <div className="relative flex items-center bg-gray-50 rounded-full px-4 py-2 shadow-inner border border-gray-200">
-                <input
-                  type="text"
-                  placeholder="Search your task here..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-transparent outline-none flex-grow text-gray-700 placeholder-gray-400 pr-2"
-                />
-                <button className="p-2 bg-red-500 rounded-full text-white hover:bg-red-600 transition-colors duration-200">
-                  <SearchIcon sx={{ fontSize: 20 }} />
-                </button>
-              </div>
-
-              {/* Mobile date display */}
-              <div className="flex items-center justify-between px-2">
-                <div className="text-sm text-gray-600">
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                    {new Date().toLocaleDateString('en-US', { weekday: 'long' })}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary" sx={{ color: '#3B82F6' }}>
-                    {new Date().toLocaleDateString()}
-                  </Typography>
-                </div>
-                <button className="p-2 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition-colors duration-200">
-                  <CalendarMonthIcon />
-                </button>
-              </div>
-            </div>
+          <div className="lg:hidden py-4 border-t border-gray-200">
+             <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                backgroundColor: '#f3e8ff',
+                borderRadius: '9999px',
+                p: '4px 8px',
+                mb: 2,
+              }}
+            >
+              <InputBase
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                sx={{ color: '#5b21b6', flex: 1, ml: 1 }}
+              />
+              <IconButton sx={{ p: '10px', color: '#5b21b6' }} aria-label="search">
+                <SearchIcon />
+              </IconButton>
+            </Box>
+            <Typography sx={{ color: '#5b21b6', textAlign: 'center' }}>
+              {formattedDate}
+            </Typography>
           </div>
         )}
       </div>

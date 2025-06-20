@@ -1,18 +1,14 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import {
-  Dashboard as DashboardIcon,
-  Logout as LogoutIcon,
-  ErrorOutline as VitalTaskIcon,
-  Checklist as MyTaskIcon,
-  Category as TaskCategoriesIcon,
-  Settings as SettingsIcon,
-  HelpOutline as HelpIcon,
+  GridView as DashboardIcon,
+  ExitToApp as LogoutIcon,
 } from "@mui/icons-material";
 import {
   Typography,
   Avatar,
   useMediaQuery,
+  Box,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 
@@ -20,105 +16,85 @@ const Sidebar = ({ user, logout, location }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const mainNavItems = [
-    { path: "/dashboard", icon: <DashboardIcon sx={{ fontSize: 28 }} />, text: "Dashboard" },
-    { path: "/profile", icon: <SettingsIcon sx={{ fontSize: 28 }} />, text: "Profile" },
-    { path: "/vital-task", icon: <VitalTaskIcon sx={{ fontSize: 28 }} />, text: "Vital Task" },
-    { path: "/my-task", icon: <MyTaskIcon sx={{ fontSize: 28 }} />, text: "My Task" },
-    
-  ];
-
-  const additionalNavItems = [
-    { path: "/task-categories", icon: <TaskCategoriesIcon sx={{ fontSize: 28 }} />, text: "Task Categories" },
-    { path: "/settings", icon: <SettingsIcon sx={{ fontSize: 28 }} />, text: "Settings" },
-    { path: "/help", icon: <HelpIcon sx={{ fontSize: 28 }} />, text: "Help" },
+  const navItems = [
+    { path: "/dashboard", icon: <DashboardIcon />, text: "Dashboard" },
+    { path: "/login", icon: <LogoutIcon />, text: "Logout" },
   ];
 
   const renderSidebarContent = (
-    <div className="w-80 bg-[#FF6767] text-white h-screen flex flex-col rounded-tr-lg">
-      <div className="flex flex-col items-center mt-10 px-5">
+    <Box
+      sx={{
+        width: 320,
+        bgcolor: '#4c1d95',
+        color: '#e0e0e0',
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        fontFamily: 'Roboto, sans-serif',
+        borderRadius: 0, 
+      }}
+    >
+      <Box sx={{ p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', borderBottom: '1px solid #5b21b6' }}>
         <Avatar
           alt={user?.name || "User"}
           src={user?.avatar || ""}
           sx={{
-            width: 90,
-            height: 90,
-            bgcolor: user?.avatar ? "transparent" : "#fff",
-            color: "#EF4444",
-            fontSize: "3rem",
-            fontWeight: "bold",
-            border: "3px solid white",
-            boxShadow: "0px 6px 15px rgba(0, 0, 0, 0.2)",
+            width: 100,
+            height: 100,
+            bgcolor: '#7c3aed',
+            color: '#fff',
+            fontSize: '3rem',
+            fontWeight: 'bold',
+            border: '2px solid #a78bfa',
           }}
         >
           {!user?.avatar && user?.email ? user.email[0].toUpperCase() : ""}
         </Avatar>
 
-        <Typography variant="h5" sx={{ fontWeight: "bold", mt: 2 }}>
-          {user?.name || ""}
+        <Typography variant="h6" sx={{ fontWeight: 'bold', mt: 2, color: '#fff' }}>
+          {user?.name || "User Name"}
         </Typography>
-        <Typography variant="body1" sx={{ fontWeight: "bold", mb: 3 }}>
+        <Typography variant="body2" sx={{ color: '#d1d5db' }}>
           {user?.email || "user@example.com"}
         </Typography>
-      </div>
+      </Box>
 
-      <div className="px-5">
-        <ul className="space-y-2 mt-2">
-          {mainNavItems.map((item) => {
+      <Box sx={{ flexGrow: 1, p: 2 }}>
+        <ul className="space-y-2">
+          {navItems.map((item) => {
             const isActive = location.pathname === item.path;
-            const itemClasses = `flex items-center p-2 rounded-lg text-lg font-semibold transition-all duration-200 ${
-              isActive ? "bg-white text-[#EF4444] shadow-md" : "hover:bg-red-500 text-white"
-            }`;
+            const isLogout = item.text === 'Logout';
             return (
               <li key={item.path}>
-                <Link to={item.path} className={itemClasses} onClick={() => isMobile && setDrawerOpen(false)}>
-                  {item.icon}
-                  <span className="ml-3">{item.text}</span>
+                <Link
+                  to={item.path}
+                  className={`flex items-center p-3 text-base font-normal transition-all duration-200 ${
+                    isActive && !isLogout
+                      ? "bg-purple-800 text-white shadow-inner"
+                      : "hover:bg-purple-700 text-purple-200 hover:text-white"
+                  }`}
+                  style={{ borderRadius: 0 }}
+                  onClick={() => {
+                    if (isLogout) logout();
+                    if (isMobile) setDrawerOpen(false);
+                  }}
+                >
+                  {React.cloneElement(item.icon, { sx: { fontSize: 24, color: isActive && !isLogout ? '#fff' : '#a78bfa' }})}
+                  <span className="ml-4">{item.text}</span>
                 </Link>
               </li>
             );
           })}
-
-          {/* Additional navigation items - only visible on large screens */}
-          {!isMobile && additionalNavItems.map((item) => {
-            const isActive = location.pathname === item.path;
-            const itemClasses = `flex items-center p-2 rounded-lg text-lg font-semibold transition-all duration-200 ${
-              isActive ? "bg-white text-[#EF4444] shadow-md" : "hover:bg-red-500 text-white"
-            }`;
-            return (
-              <li key={item.path}>
-                <Link to={item.path} className={itemClasses}>
-                  {item.icon}
-                  <span className="ml-3">{item.text}</span>
-                </Link>
-              </li>
-            );
-          })}
-
-          {/* Logout button */}
-          <li className="mt-4">
-            <Link
-              to="/login"
-              onClick={() => {
-                logout();
-                isMobile && setDrawerOpen(false);
-              }}
-              className="flex items-center p-2 rounded-lg text-lg font-semibold transition-all duration-200 hover:bg-red-500 text-white"
-            >
-              <LogoutIcon sx={{ fontSize: 28 }} />
-              <span className="ml-3">Logout</span>
-            </Link>
-          </li>
         </ul>
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 
   return (
     <>
       {/* Static sidebar for larger screens */}
       {!isMobile && (
-        <aside className="w-80 bg-[#FF6767] min-h-screen text-white flex flex-col shadow-lg rounded-tr-lg">
+        <aside className="h-screen shadow-lg sticky top-0">
           {renderSidebarContent}
         </aside>
       )}

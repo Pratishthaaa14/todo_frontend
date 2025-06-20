@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext';
 import { Box, Button, TextField, Typography, IconButton, InputAdornment, Checkbox, FormControlLabel } from '@mui/material';
 import { Visibility, VisibilityOff, PersonOutline as PersonOutlineIcon, LockOutlined as LockOutlinedIcon } from '@mui/icons-material';
 import { toast } from 'react-toastify';
-import backgroundImage from '../assets/bg.jpg'; // Import the local image
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -78,11 +77,11 @@ const Register = () => {
     try {
       setLoading(true);
       await register({ name: formData.name, email: formData.email, password: formData.password });
-      toast.success('Hello, welcome User.');
+      toast.success('Welcome aboard! Your account has been created.');
       navigate('/login');
     } catch (err) {
       console.error('Registration error:', err);
-      toast.error(err.message || 'Registration failed. Please try again.');
+      toast.error(err.message || 'Something went wrong. Please try to register again.');
     } finally {
       setLoading(false);
     }
@@ -97,14 +96,14 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 sm:p-8 md:p-12" style={{ backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-8 md:p-12 bg-gray-100">
       <Box
-        className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl w-full max-w-sm md:max-w-md lg:max-w-lg"
+        className="bg-white p-6 sm:p-8 rounded-2xl shadow-md w-full max-w-sm md:max-w-md lg:max-w-lg"
         sx={{
-          height: 'auto', // Adjust height to content
+          height: 'auto',
         }}
       >
-        <Typography component="h1" variant="h5" sx={{ fontWeight: 700, mb: 4, color: '#333', fontSize: { xs: '1.75rem', sm: '2.125rem' } }}>
+        <Typography component="h1" variant="h5" sx={{ fontWeight: 700, mb: 4, color: '#2d3748', fontSize: { xs: '1.75rem', sm: '2.125rem' } }}>
           Sign Up
         </Typography>
         
@@ -123,18 +122,25 @@ const Register = () => {
             error={!!errors.name}
             helperText={errors.name}
             disabled={loading}
+            variant="filled"
             InputProps={{
+              disableUnderline: true,
               startAdornment: (
                 <InputAdornment position="start">
-                  <PersonOutlineIcon sx={{ color: '#888' }} />
+                  <PersonOutlineIcon sx={{ color: '#a0aec0' }} />
                 </InputAdornment>
               ),
               sx: {
-                borderRadius: '8px',
-                backgroundColor: '#F9FAFB',
-                '& .MuiOutlinedInput-notchedOutline': { borderColor: '#E5E7EB !important' },
-                '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#D1D5DB !important' },
-                '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#6B7280 !important' },
+                borderRadius: '12px',
+                backgroundColor: '#f7fafc',
+                border: '1px solid #e2e8f0',
+                '&:hover': {
+                  backgroundColor: '#edf2f7',
+                },
+                '&.Mui-focused': {
+                  backgroundColor: '#edf2f7',
+                  borderColor: '#a0aec0',
+                },
               }
             }}
           />
@@ -151,18 +157,25 @@ const Register = () => {
             error={!!errors.email}
             helperText={errors.email}
             disabled={loading}
+            variant="filled"
             InputProps={{
+              disableUnderline: true,
               startAdornment: (
                 <InputAdornment position="start">
-                  <PersonOutlineIcon sx={{ color: '#888' }} />
+                  <PersonOutlineIcon sx={{ color: '#a0aec0' }} />
                 </InputAdornment>
               ),
               sx: {
-                borderRadius: '8px',
-                backgroundColor: '#F9FAFB',
-                '& .MuiOutlinedInput-notchedOutline': { borderColor: '#E5E7EB !important' },
-                '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#D1D5DB !important' },
-                '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#6B7280 !important' },
+                borderRadius: '12px',
+                backgroundColor: '#f7fafc',
+                border: '1px solid #e2e8f0',
+                '&:hover': {
+                  backgroundColor: '#edf2f7',
+                },
+                '&.Mui-focused': {
+                  backgroundColor: '#edf2f7',
+                  borderColor: '#a0aec0',
+                },
               }
             }}
           />
@@ -180,10 +193,12 @@ const Register = () => {
             error={!!errors.password}
             helperText={errors.password}
             disabled={loading}
+            variant="filled"
             InputProps={{
+              disableUnderline: true,
               startAdornment: (
                 <InputAdornment position="start">
-                  <LockOutlinedIcon sx={{ color: '#888' }} />
+                  <LockOutlinedIcon sx={{ color: '#a0aec0' }} />
                 </InputAdornment>
               ),
               endAdornment: (
@@ -192,18 +207,23 @@ const Register = () => {
                     aria-label="toggle password visibility"
                     onClick={togglePasswordVisibility}
                     edge="end"
-                    sx={{ color: '#888' }}
+                    sx={{ color: '#a0aec0' }}
                   >
                     {showPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
                 </InputAdornment>
               ),
               sx: {
-                borderRadius: '8px',
-                backgroundColor: '#F9FAFB',
-                '& .MuiOutlinedInput-notchedOutline': { borderColor: '#E5E7EB !important' },
-                '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#D1D5DB !important' },
-                '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#6B7280 !important' },
+                borderRadius: '12px',
+                backgroundColor: '#f7fafc',
+                border: '1px solid #e2e8f0',
+                '&:hover': {
+                  backgroundColor: '#edf2f7',
+                },
+                '&.Mui-focused': {
+                  backgroundColor: '#edf2f7',
+                  borderColor: '#a0aec0',
+                },
               }
             }}
           />
@@ -221,10 +241,12 @@ const Register = () => {
             error={!!errors.confirmPassword}
             helperText={errors.confirmPassword}
             disabled={loading}
+            variant="filled"
             InputProps={{
+              disableUnderline: true,
               startAdornment: (
                 <InputAdornment position="start">
-                  <LockOutlinedIcon sx={{ color: '#888' }} />
+                  <LockOutlinedIcon sx={{ color: '#a0aec0' }} />
                 </InputAdornment>
               ),
               endAdornment: (
@@ -233,44 +255,61 @@ const Register = () => {
                     aria-label="toggle confirm password visibility"
                     onClick={toggleConfirmPasswordVisibility}
                     edge="end"
-                    sx={{ color: '#888' }}
+                    sx={{ color: '#a0aec0' }}
                   >
                     {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
                 </InputAdornment>
               ),
               sx: {
-                borderRadius: '8px',
-                backgroundColor: '#F9FAFB',
-                '& .MuiOutlinedInput-notchedOutline': { borderColor: '#E5E7EB !important' },
-                '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#D1D5DB !important' },
-                '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#6B7280 !important' },
+                borderRadius: '12px',
+                backgroundColor: '#f7fafc',
+                border: '1px solid #e2e8f0',
+                '&:hover': {
+                  backgroundColor: '#edf2f7',
+                },
+                '&.Mui-focused': {
+                  backgroundColor: '#edf2f7',
+                  borderColor: '#a0aec0',
+                },
               }
             }}
+          />
+          <FormControlLabel
+            control={<Checkbox value="terms" color="primary" sx={{ color: '#a0aec0' }} />}
+            label="I agree to the Terms and Conditions"
+            sx={{ mt: 2, color: '#4a5568' }}
           />
           <Button
             type="submit"
             fullWidth
             variant="contained"
+            disabled={loading}
             sx={{
-              mt: 2,
+              mt: 3,
               mb: 2,
               py: 1.5,
-              backgroundColor: '#FF6767',
-              '&:hover': { backgroundColor: '#E55353' },
-              borderRadius: '8px',
-              boxShadow: 'none',
-              fontWeight: 'bold',
-              fontSize: { xs: '0.9rem', sm: '1rem' },
+              backgroundColor: '#4299e1',
+              '&:hover': {
+                backgroundColor: '#3182ce',
+              },
+              borderRadius: '12px',
+              textTransform: 'none',
+              fontSize: '1rem',
+              fontWeight: 600,
             }}
-            disabled={loading}
           >
-            {loading ? 'Registering...' : 'Sign Up'}
+            {loading ? 'Signing Up...' : 'Sign Up'}
           </Button>
           
-          <Typography variant="body2" align="center" sx={{ color: '#777', fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
-            Already have an account? <Link to="/login" style={{ textDecoration: 'none', color: '#3B82F6', fontWeight: 600 }}>Sign In</Link>
-              </Typography>
+          <Box sx={{ textAlign: 'center', mt: 2 }}>
+            <Typography variant="body2" sx={{ color: '#4a5568' }}>
+              Already have an account?{' '}
+              <Link to="/login" className="text-[#4299e1] hover:text-[#3182ce] transition duration-150 ease-in-out">
+                Sign in
+              </Link>
+            </Typography>
+          </Box>
         </Box>
       </Box>
     </div>
