@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './context/AuthContext';
 import App from './App';
 import './index.css';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 // Initialize TanStack Query client
 const queryClient = new QueryClient({
@@ -15,6 +16,12 @@ const queryClient = new QueryClient({
       retry: 1,
       staleTime: 5 * 60 * 1000, // 5 minutes
     },
+  },
+});
+
+const theme = createTheme({
+  typography: {
+    fontFamily: 'Roboto, sans-serif',
   },
 });
 
@@ -32,7 +39,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <BrowserRouter future={router.future}>
     <AuthProvider>
       <QueryClientProvider client={queryClient}>
+        <ThemeProvider theme={theme}>
           <App />
+        </ThemeProvider>
       </QueryClientProvider>
     </AuthProvider>
     </BrowserRouter>

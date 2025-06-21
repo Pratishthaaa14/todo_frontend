@@ -4,7 +4,11 @@ import './CustomLoader.css';
 const CustomLoader = () => {
   return (
     <div className="loader-container">
-      <span className="custom-loader"></span>
+      <div className="custom-loader">
+        <div className="dot"></div>
+        <div className="dot"></div>
+        <div className="dot"></div>
+      </div>
     </div>
   );
 };

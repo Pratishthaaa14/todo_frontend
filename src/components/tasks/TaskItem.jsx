@@ -150,10 +150,10 @@ const TaskItem = ({ task, onEdit }) => {
               icon={<PriorityIcon />}
               label={priority.label}
               size="small"
-              sx={{
+            sx={{
                 bgcolor: priority.color,
                 color: 'white',
-                fontWeight: 500,
+              fontWeight: 500,
                 '& .MuiChip-icon': {
                   color: priority.iconColor,
                 }
@@ -163,10 +163,10 @@ const TaskItem = ({ task, onEdit }) => {
               icon={<StatusIcon />}
               label={status.label}
               size="small"
-              sx={{
+            sx={{
                 bgcolor: status.color,
                 color: 'white',
-                fontWeight: 500,
+              fontWeight: 500,
                 '& .MuiChip-icon': {
                   fontSize: '1rem',
                   color: 'white'

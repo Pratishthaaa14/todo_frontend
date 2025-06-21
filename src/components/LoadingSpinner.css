@@ -5,50 +5,37 @@
   justify-content: center;
   gap: 0.5rem;
 }
-
 .loading-spinner {
   display: flex;
   gap: 0.25rem;
   align-items: center;
   justify-content: center;
 }
-
 .spinner-circle {
   width: 8px;
   height: 8px;
-  background-color: currentColor;
+  background-color: black; /* You can change to any color */
   border-radius: 50%;
-  animation: bounce 0.5s ease-in-out infinite;
+  animation: bounce 0.6s linear infinite;
 }
-
-.spinner-circle:nth-child(2) {
-  animation-delay: 0.1s;
-}
-
-.spinner-circle:nth-child(3) {
-  animation-delay: 0.2s;
-}
-
 .loading-text {
   font-size: 0.875rem;
-  color: currentColor;
-  animation: pulse 1.5s ease-in-out infinite;
+  color: black;
+  animation: fade 1s ease-in-out infinite;
 }
-
 @keyframes bounce {
   0%, 100% {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-4px);
+    transform: translateY(-5px);
   }
 }
-
-@keyframes pulse {
+@keyframes fade {
   0%, 100% {
     opacity: 1;
   }
   50% {
-    opacity: 0.5;
+    opacity: 0.6;
   }
-} 
+}

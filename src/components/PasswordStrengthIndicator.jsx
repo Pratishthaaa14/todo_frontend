@@ -1,99 +1,83 @@
 import React from 'react';
-import { ProgressBar } from 'react-bootstrap';
+import { Box, Typography } from '@mui/material';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 const PasswordStrengthIndicator = ({ password }) => {
-  const calculateStrength = (password) => {
-    let strength = 0;
-    
-    // Length check
-    if (password.length >= 8) strength += 1;
-    if (password.length >= 12) strength += 1;
-    
-    // Character type checks
-    if (/[A-Z]/.test(password)) strength += 1; // Uppercase
-    if (/[a-z]/.test(password)) strength += 1; // Lowercase
-    if (/[0-9]/.test(password)) strength += 1; // Numbers
-    if (/[^A-Za-z0-9]/.test(password)) strength += 1; // Special characters
-    
-    return Math.min(strength, 5);
-  };
+  const requirements = [
+    { text: 'At least 8 characters', regex: /.{8,}/ },
+    { text: 'At least one uppercase letter', regex: /[A-Z]/ },
+    { text: 'At least one lowercase letter', regex: /[a-z]/ },
+    { text: 'At least one number', regex: /[0-9]/ },
+    { text: 'At least one special character', regex: /[^A-Za-z0-9]/ },
+  ];
 
-  const getStrengthColor = (strength) => {
+  const strength = requirements.reduce((acc, req) => {
+    return acc + (req.regex.test(password) ? 1 : 0);
+  }, 0);
+
+  const getStrengthInfo = (strength) => {
     switch (strength) {
       case 0:
       case 1:
-        return 'danger';
+        return { text: 'Very Weak', color: '#ef4444' };
       case 2:
+        return { text: 'Weak', color: '#f97316' };
       case 3:
-        return 'warning';
+        return { text: 'Fair', color: '#facc15' };
       case 4:
-        return 'info';
+        return { text: 'Good', color: '#84cc16' };
       case 5:
-        return 'success';
+        return { text: 'Strong', color: '#22c55e' };
       default:
-        return 'danger';
+        return { text: 'Very Weak', color: '#ef4444' };
     }
   };
 
-  const getStrengthText = (strength) => {
-    switch (strength) {
-      case 0:
-        return 'Very Weak';
-      case 1:
-        return 'Weak';
-      case 2:
-        return 'Fair';
-      case 3:
-        return 'Good';
-      case 4:
-        return 'Strong';
-      case 5:
-        return 'Very Strong';
-      default:
-        return 'Very Weak';
-    }
-  };
-
-  const strength = calculateStrength(password);
-  const color = getStrengthColor(strength);
-  const text = getStrengthText(strength);
+  const { text, color } = getStrengthInfo(strength);
 
   return (
-    <div className="mt-2">
-      <ProgressBar
-        now={(strength / 5) * 100}
-        variant={color}
-        className="mb-1"
-        style={{ height: '5px' }}
-      />
-      <small className={`text-${color}`}>
-        Password Strength: {text}
-      </small>
+    <Box sx={{ mt: 2, p: 2, backgroundColor: '#fafafa', borderRadius: '8px' }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+        <Typography variant="subtitle2" sx={{ fontWeight: 'medium', color: '#374151', mr: 'auto' }}>
+          Password Strength:
+        </Typography>
+        <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: color }}>
+          {text}
+        </Typography>
+      </Box>
+      <Box sx={{ display: 'flex', gap: '4px', height: '8px', mb: 2 }}>
+        {Array.from({ length: 5 }).map((_, index) => (
+          <Box
+            key={index}
+            sx={{
+              flex: 1,
+              height: '100%',
+              borderRadius: '4px',
+              backgroundColor: index < strength ? color : '#e5e7eb',
+              transition: 'background-color 0.3s ease-in-out',
+            }}
+          />
+        ))}
+      </Box>
+
       {password && (
-        <div className="mt-2">
-          <small className="text-muted">
-            Password must contain:
-            <ul className="mb-0 ps-3">
-              <li className={password.length >= 8 ? 'text-success' : 'text-danger'}>
-                At least 8 characters
-              </li>
-              <li className={/[A-Z]/.test(password) ? 'text-success' : 'text-danger'}>
-                At least one uppercase letter
-              </li>
-              <li className={/[a-z]/.test(password) ? 'text-success' : 'text-danger'}>
-                At least one lowercase letter
-              </li>
-              <li className={/[0-9]/.test(password) ? 'text-success' : 'text-danger'}>
-                At least one number
-              </li>
-              <li className={/[^A-Za-z0-9]/.test(password) ? 'text-success' : 'text-danger'}>
-                At least one special character
-              </li>
-            </ul>
-          </small>
-        </div>
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 0.5 }}>
+          {requirements.map((req, index) => (
+            <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              {req.regex.test(password) ? (
+                <CheckCircleIcon sx={{ color: '#22c55e', fontSize: '1rem' }} />
+              ) : (
+                <CancelIcon sx={{ color: '#ef4444', fontSize: '1rem' }} />
+              )}
+              <Typography variant="caption" sx={{ color: '#6b7280' }}>
+                {req.text}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
       )}
-    </div>
+    </Box>
   );
 };
 

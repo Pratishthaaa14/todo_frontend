@@ -26,6 +26,9 @@ import {
   Button,
   Menu,
   Grow,
+  ToggleButton,
+  ToggleButtonGroup,
+  Grid,
 } from "@mui/material";
 import {
   Search as SearchIcon,
@@ -38,6 +41,9 @@ import {
   AccessTime as AccessTimeIcon,
   ListAlt as ListAltIcon,
   DonutLarge as DonutLargeIcon,
+  FilterList as FilterListIcon,
+  LowPriority as LowPriorityIcon,
+  Sort as SortIcon,
 } from "@mui/icons-material";
 import { toast } from "react-toastify";
 import {
@@ -72,10 +78,9 @@ export const Dashboard = () => {
   const queryClient = useQueryClient();
 
   // Dropdown hooks
-  const statusDropdown = useDropdown();
   const sortDropdown = useDropdown();
   const orderDropdown = useDropdown();
-  
+
   // Fetch all tasks to pass to TaskStatusSection
   const {
     data: tasks,
@@ -116,28 +121,33 @@ export const Dashboard = () => {
     setOpenForm(true);
   };
 
+  const handleStatusFilterChange = (event, newStatus) => {
+    if (newStatus !== null) {
+      setStatusFilter(newStatus);
+    }
+  };
+  
+  const handlePriorityFilterChange = (event, newPriority) => {
+    if (newPriority !== null) {
+      setPriorityFilter(newPriority);
+    }
+  };
+
+  const handleSortByChange = (event, newSortBy) => {
+    if (newSortBy !== null) {
+      setSortBy(newSortBy);
+    }
+  };
+
+  const handleSortDirectionChange = (event, newSortDirection) => {
+    if (newSortDirection !== null) {
+      setSortDirection(newSortDirection);
+    }
+  };
+
   const handleMarkAllAsRead = () => {
     // markReadMutation.mutate();
   };
-
-  const renderFilterButton = (label, dropdown) => (
-      <Button
-          variant="contained"
-          onClick={dropdown.handleClick}
-          sx={{
-              bgcolor: 'white',
-              color: '#5b21b6',
-              border: '1px solid #ddd6fe',
-              boxShadow: 'none',
-              '&:hover': {
-                  bgcolor: '#f5f3ff',
-                  boxShadow: 'none',
-              },
-          }}
-      >
-          {label}
-      </Button>
-  );
 
   return (
     <div className="min-h-screen bg-[#F5F8FF]">
@@ -177,45 +187,124 @@ export const Dashboard = () => {
             {/* Header: Filters + Add */}
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
-                    <Box sx={{ position: "relative", display: "inline-flex", mr: 1 }}>
+              <Box sx={{ position: "relative", display: "inline-flex", mr: 1 }}>
                         <ListAltIcon sx={{ color: "#a78bfa", fontSize: 28 }} />
-                    </Box>
+              </Box>
                     <Typography variant="h5" sx={{ fontWeight: 600, color: '#5b21b6' }}>
-                        To-Do
-                    </Typography>
-                </div>
-                <button
-                    onClick={() => setOpenForm(!openForm)}
-                    className="flex items-center text-white font-semibold px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 transition-colors duration-200 shadow-md"
+                        Tasks
+              </Typography>
+            </div>
+                <Button
+                    variant="contained"
+                    onClick={() => setOpenForm(true)}
+                    startIcon={<AddIcon />}
+                    sx={{
+                        backgroundColor: '#7c3aed',
+                        color: 'white',
+                        fontWeight: 'bold',
+                        fontSize: '1rem',
+                        borderRadius: '9999px',
+                        px: 3,
+                        py: 1,
+                        textTransform: 'none',
+                        boxShadow: '0 4px 12px rgba(124, 58, 237, 0.3)',
+                        '&:hover': {
+                            backgroundColor: '#6d28d9',
+                    },
+                  }}
                 >
-                    <AddIcon fontSize="small" sx={{ mr: 1 }} /> Add Task
-                </button>
+                    Add Task
+                </Button>
             </div>
 
-            <div className="flex flex-wrap gap-4 items-center mb-4 p-4 bg-gray-50 rounded-xl">
-                {renderFilterButton(`Status: ${statusFilter}`, statusDropdown)}
-                <Menu anchorEl={statusDropdown.anchorEl} open={statusDropdown.open} onClose={statusDropdown.handleClose}>
-                    <MenuItem onClick={() => { setStatusFilter('all'); statusDropdown.handleClose(); }}>All</MenuItem>
-                    <MenuItem onClick={() => { setStatusFilter('pending'); statusDropdown.handleClose(); }}>Pending</MenuItem>
-                    <MenuItem onClick={() => { setStatusFilter('in-progress'); statusDropdown.handleClose(); }}>In Progress</MenuItem>
-                    <MenuItem onClick={() => { setStatusFilter('completed'); statusDropdown.handleClose(); }}>Completed</MenuItem>
-                </Menu>
+            <Box sx={{ p: 2, bgcolor: '#f3e8ff', borderRadius: 2, mb: 4 }}>
+                <Grid container spacing={2} alignItems="center">
+                    {/* Status Filter */}
+                    <Grid item xs={12} md={6}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                            <FilterListIcon sx={{ color: '#5b21b6' }} />
+                            <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#5b21b6' }}>
+                                Status
+                            </Typography>
+                        </Box>
+                        <ToggleButtonGroup
+                            value={statusFilter}
+                            exclusive
+                            onChange={handleStatusFilterChange}
+                            aria-label="status filter"
+                            fullWidth
+                        >
+                            <ToggleButton value="all">All</ToggleButton>
+                            <ToggleButton value="pending">Pending</ToggleButton>
+                            <ToggleButton value="in-progress">In Progress</ToggleButton>
+                        </ToggleButtonGroup>
+                    </Grid>
 
-                {renderFilterButton(`Sort: ${sortBy}`, sortDropdown)}
-                <Menu anchorEl={sortDropdown.anchorEl} open={sortDropdown.open} onClose={sortDropdown.handleClose}>
-                    <MenuItem onClick={() => { setSortBy('createdAt'); sortDropdown.handleClose(); }}>Creation Date</MenuItem>
-                    <MenuItem onClick={() => { setSortBy('dueDate'); sortDropdown.handleClose(); }}>Due Date</MenuItem>
-                    <MenuItem onClick={() => { setSortBy('priority'); sortDropdown.handleClose(); }}>Priority</MenuItem>
-                    <MenuItem onClick={() => { setSortBy('title'); sortDropdown.handleClose(); }}>Title</MenuItem>
-                </Menu>
+                    {/* Priority Filter */}
+                    <Grid item xs={12} md={6}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                            <LowPriorityIcon sx={{ color: '#5b21b6' }} />
+                            <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#5b21b6' }}>
+                                Priority
+                            </Typography>
+                        </Box>
+                        <ToggleButtonGroup
+                            value={priorityFilter}
+                            exclusive
+                            onChange={handlePriorityFilterChange}
+                            aria-label="priority filter"
+                            fullWidth
+                        >
+                            <ToggleButton value="all">All</ToggleButton>
+                            <ToggleButton value="low">Low</ToggleButton>
+                            <ToggleButton value="medium">Medium</ToggleButton>
+                            <ToggleButton value="high">High</ToggleButton>
+                        </ToggleButtonGroup>
+                    </Grid>
 
-                {renderFilterButton(`Order: ${sortDirection}`, orderDropdown)}
-                <Menu anchorEl={orderDropdown.anchorEl} open={orderDropdown.open} onClose={orderDropdown.handleClose}>
-                    <MenuItem onClick={() => { setSortDirection('asc'); orderDropdown.handleClose(); }}>Ascending</MenuItem>
-                    <MenuItem onClick={() => { setSortDirection('desc'); orderDropdown.handleClose(); }}>Descending</MenuItem>
-                </Menu>
-            </div>
-            
+                    {/* Sort By Filter */}
+                    <Grid item xs={12} md={6}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                            <SortIcon sx={{ color: '#5b21b6' }} />
+                            <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#5b21b6' }}>
+                                Sort By
+                            </Typography>
+                        </Box>
+                        <ToggleButtonGroup
+                            value={sortBy}
+                            exclusive
+                            onChange={handleSortByChange}
+                            aria-label="sort by filter"
+                            fullWidth
+                        >
+                            <ToggleButton value="createdAt">Date</ToggleButton>
+                            <ToggleButton value="priority">Priority</ToggleButton>
+                            <ToggleButton value="title">Title</ToggleButton>
+                        </ToggleButtonGroup>
+                    </Grid>
+
+                    {/* Sort Direction Filter */}
+                    <Grid item xs={12} md={6}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                            <SortIcon sx={{ color: '#5b21b6', transform: 'scaleY(-1)' }} />
+                            <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#5b21b6' }}>
+                                Order
+                            </Typography>
+                        </Box>
+                        <ToggleButtonGroup
+                            value={sortDirection}
+                            exclusive
+                            onChange={handleSortDirectionChange}
+                            aria-label="sort direction filter"
+                            fullWidth
+                        >
+                            <ToggleButton value="asc">Ascending</ToggleButton>
+                            <ToggleButton value="desc">Descending</ToggleButton>
+                        </ToggleButtonGroup>
+                    </Grid>
+                </Grid>
+            </Box>
+
             {/* Task List */}
             <TaskList
               onEditTask={handleEditTask}
@@ -267,7 +356,7 @@ export const Dashboard = () => {
       >
         <DialogTitle>
           <Typography variant="h6" sx={{fontWeight: 700, color: '#5b21b6'}}>
-            {editingTask ? "Edit Task" : "Add New Task"}
+          {editingTask ? "Edit Task" : "Add New Task"}
           </Typography>
           <IconButton
             aria-label="close"

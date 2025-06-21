@@ -115,30 +115,30 @@ const TaskForm = ({ open, onClose, onTaskCreated, editingTask, setEditingTask })
     <form onSubmit={handleSubmit}>
       <DialogContent sx={{ bgcolor: '#fafafa', p: 4 }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-          {error && (
+      {error && (
             <Alert severity="error" variant="filled" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
+          {error}
+        </Alert>
+      )}
 
-          <TextField
+      <TextField
             label="Task Title"
             name="title"
             value={formData.title}
             onChange={handleChange}
-            required
+        required
             fullWidth
-            disabled={loading}
+        disabled={loading}
             variant="outlined"
             sx={commonInputStyles}
-          />
+      />
 
-          <TextField
-            label="Description"
+      <TextField
+        label="Description"
             name="description"
             value={formData.description}
             onChange={handleChange}
-            multiline
+        multiline
             rows={4}
             fullWidth
             disabled={loading}
@@ -148,15 +148,15 @@ const TaskForm = ({ open, onClose, onTaskCreated, editingTask, setEditingTask })
           
           <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
-                  <TextField
-                    label="Due Date"
-                    name="dueDate"
-                    type="date"
-                    value={formData.dueDate}
-                    onChange={handleChange}
-                    required
-                    fullWidth
-                    disabled={loading}
+          <TextField
+            label="Due Date"
+            name="dueDate"
+            type="date"
+            value={formData.dueDate}
+            onChange={handleChange}
+            required
+            fullWidth
+        disabled={loading}
                     variant="outlined"
                     InputLabelProps={{ shrink: true }}
                     sx={commonInputStyles}
@@ -166,20 +166,20 @@ const TaskForm = ({ open, onClose, onTaskCreated, editingTask, setEditingTask })
                   <FormControl fullWidth disabled={loading} variant="outlined" sx={commonInputStyles}>
                     <Select name="priority" value={formData.priority} onChange={handleChange} displayEmpty>
                       <MenuItem value="" disabled>Priority</MenuItem>
-                      <MenuItem value="low">Low</MenuItem>
-                      <MenuItem value="medium">Medium</MenuItem>
-                      <MenuItem value="high">High</MenuItem>
-                    </Select>
-                  </FormControl>
+          <MenuItem value="low">Low</MenuItem>
+          <MenuItem value="medium">Medium</MenuItem>
+          <MenuItem value="high">High</MenuItem>
+        </Select>
+      </FormControl>
               </Grid>
           </Grid>
 
           <FormControl fullWidth disabled={loading} variant="outlined" sx={commonInputStyles}>
             <Select name="status" value={formData.status} onChange={handleChange} displayEmpty>
                 <MenuItem value="" disabled>Status</MenuItem>
-                <MenuItem value="pending">Pending</MenuItem>
-                <MenuItem value="in-progress">In Progress</MenuItem>
-                <MenuItem value="completed">Completed</MenuItem>
+              <MenuItem value="pending">Pending</MenuItem>
+              <MenuItem value="in-progress">In Progress</MenuItem>
+              <MenuItem value="completed">Completed</MenuItem>
             </Select>
           </FormControl>
         </Box>
@@ -189,11 +189,11 @@ const TaskForm = ({ open, onClose, onTaskCreated, editingTask, setEditingTask })
         <Button onClick={handleClose} disabled={loading} sx={{ color: '#7c3aed', fontWeight: 600 }}>
           Cancel
         </Button>
-        <Button
-          type="submit"
-          variant="contained"
-          disabled={loading}
-          sx={{ 
+      <Button
+        type="submit"
+        variant="contained"
+        disabled={loading}
+          sx={{
               bgcolor: '#5b21b6',
               '&:hover': { bgcolor: '#4c1d95' },
               borderRadius: '8px',
@@ -203,7 +203,7 @@ const TaskForm = ({ open, onClose, onTaskCreated, editingTask, setEditingTask })
           }}
         >
           {editingTask ? 'Save Changes' : 'Create Task'}
-        </Button>
+      </Button>
       </DialogActions>
     </form>
   );

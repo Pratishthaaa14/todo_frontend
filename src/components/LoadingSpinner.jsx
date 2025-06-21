@@ -3,13 +3,13 @@ import './LoadingSpinner.css';
 
 const LoadingSpinner = ({ text = 'Loading...' }) => {
   return (
-    <div className="loading-container">
+    <div className="loading-container" role="status" aria-live="polite">
       <div className="loading-spinner">
         <div className="spinner-circle"></div>
         <div className="spinner-circle"></div>
         <div className="spinner-circle"></div>
       </div>
-      <div className="loading-text">{text}</div>
+      {text && <p className="loading-text">{text}</p>}
     </div>
   );
 };

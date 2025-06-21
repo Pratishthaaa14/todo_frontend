@@ -5,7 +5,11 @@ import {
   Notifications as NotificationsIcon,
   Search as SearchIcon,
   Menu as MenuIcon,
+  Close as CloseIcon,
+  Dashboard as DashboardIcon,
+  Logout as LogoutIcon,
 } from "@mui/icons-material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { toast } from "react-toastify";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -14,14 +18,17 @@ import {
   markNotificationAsRead,
 } from "../../services/api";
 import {
-  Typography,
-  InputBase,
-  IconButton,
-  Paper,
-  Button,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Avatar,
   Badge,
   Box,
-  Avatar,
+  Button,
+  IconButton,
+  InputBase,
+  Paper,
+  Typography,
 } from "@mui/material";
 import { format } from "date-fns";
 
@@ -91,14 +98,14 @@ const Header = ({
   const unreadCount = notifications.filter((notif) => !notif.read).length;
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
+  const handleClickOutside = (event) => {
+    if (
         notificationRef.current &&
         !notificationRef.current.contains(event.target)
-      ) {
-        setNotificationsDropdownOpen(false);
-      }
-    };
+    ) {
+      setNotificationsDropdownOpen(false);
+    }
+  };
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -118,11 +125,11 @@ const Header = ({
               <Typography variant="h5" sx={{ fontWeight: 700, color: '#5b21b6' }} className="text-xl sm:text-2xl">
                 ToDo Flow
               </Typography>
-            </div>
+        </div>
 
             <div className="flex-1 mx-4 sm:mx-6 lg:mx-8">
               <Box
-                sx={{
+              sx={{
                   display: 'flex',
                   alignItems: 'center',
                   backgroundColor: '#f3e8ff',
@@ -132,20 +139,20 @@ const Header = ({
                   mx: 'auto',
                 }}
               >
-                <InputBase
+              <InputBase
                   placeholder="Search by title or description..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  sx={{
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                sx={{
                     color: '#5b21b6',
                     flex: 1,
-                    ml: 1,
+                  ml: 1,
                     '& .MuiInputBase-input::placeholder': {
                       color: '#9333ea',
-                      opacity: 1,
-                    },
-                  }}
-                />
+                    opacity: 1,
+                  },
+                }}
+              />
                 <IconButton sx={{ p: '10px', color: '#5b21b6' }} aria-label="search">
                   <SearchIcon />
                 </IconButton>
@@ -171,7 +178,7 @@ const Header = ({
                   <Badge badgeContent={unreadCount} color="error">
                     <NotificationsIcon />
                   </Badge>
-                </IconButton>
+              </IconButton>
                 {notificationsDropdownOpen && (
                   <Paper
                     className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl z-50 p-0 notification-dropdown"
@@ -197,34 +204,75 @@ const Header = ({
                           Error loading notifications.
                         </Typography>
                       ) : notifications.length === 0 ? (
-                        <Typography sx={{ textAlign: 'center', py: 2, color: '#6b7280' }}>
-                          No new notifications.
+                        <Typography sx={{ textAlign: "center", py: 2, color: "#6b7280" }}>
+                          You have no notifications yet.
                         </Typography>
                       ) : (
-                        <ul className="divide-y divide-purple-50">
+                        <div>
                           {notifications.map((notif) => (
-                            <li
+                            <Accordion
                               key={notif._id}
-                              className={`p-3 transition-colors duration-200 ${!notif.read ? 'bg-purple-50 hover:bg-purple-100 cursor-pointer' : ''}`}
-                              onClick={() => !notif.read && handleMarkAsRead(notif._id)}
+                              sx={{
+                                boxShadow: "none",
+                                borderBottom: "1px solid #e9d5ff",
+                                "&:before": { display: "none" },
+                                "&.Mui-expanded": { margin: 0 },
+                              }}
+                              onClick={() =>
+                                !notif.read && handleMarkAsRead(notif._id)
+                              }
                             >
-                              <div className="flex items-start gap-3">
-                                {!notif.read && (
-                                   <div className="w-2 h-2 rounded-full bg-purple-500 mt-1.5 flex-shrink-0"></div>
-                                )}
-                                <div className="flex-1">
-                                  <Typography variant="body2" sx={{ color: '#333' }}>
-                                    <strong>{notif.title}: </strong>
-                                    {notif.message}
+                              <AccordionSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls={`panel-${notif._id}-content`}
+                                id={`panel-${notif._id}-header`}
+                                sx={{
+                                  padding: "0 16px",
+                                  minHeight: "auto",
+                                  "& .MuiAccordionSummary-content": {
+                                    margin: "12px 0",
+                                  },
+                                  backgroundColor: !notif.read
+                                    ? "#f3e8ff"
+                                    : "transparent",
+                                }}
+                              >
+                                <div className="flex items-center gap-3 w-full">
+                                  {!notif.read && (
+                                    <div className="w-2.5 h-2.5 rounded-full bg-purple-600 flex-shrink-0"></div>
+                                  )}
+                                  <Typography
+                                    variant="subtitle2"
+                                    sx={{
+                                      fontWeight: "600",
+                                      color: "#5b21b6",
+                                      flexGrow: 1,
+                                    }}
+                                  >
+                                    {notif.title}
                                   </Typography>
-                                  <Typography variant="caption" color="textSecondary">
-                                    {format(new Date(notif.createdAt), "PPpp")}
+                                  <Typography
+                                    variant="caption"
+                                    color="textSecondary"
+                                    sx={{ flexShrink: 0 }}
+                                  >
+                                    {format(new Date(notif.createdAt), "MMM d")}
                                   </Typography>
                                 </div>
-                              </div>
-                            </li>
+                              </AccordionSummary>
+                              <AccordionDetails
+                                sx={{ padding: "0 16px 16px" }}
+                              >
+                                <Typography
+                                  variant="body2"
+                                  sx={{ color: "#374151" }}
+                                >
+                                  {notif.message}
+                                </Typography>
+                              </AccordionDetails>
+                            </Accordion>
                           ))}
-                        </ul>
+                        </div>
                       )}
                     </div>
                   </Paper>
@@ -247,38 +295,50 @@ const Header = ({
       </header>
 
       {sidebarOpen && (
-        <div className="fixed inset-0 z-[9999] flex">
-          <div className="bg-white w-64 h-full shadow-lg p-6 flex flex-col">
-            <button
+        <div
+          className="fixed inset-0 z-50 flex"
               onClick={() => setSidebarOpen(false)}
-              className="self-end text-2xl text-[#5b21b6] mb-4"
-              aria-label="Close menu"
+        >
+          <div
+            className="fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-purple-800 to-purple-900 shadow-xl p-6 transition-transform transform translate-x-0 flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center mb-10">
+              <Typography variant="h6" sx={{ color: "white", fontWeight: "bold" }}>
+                ToDo Flow
+              </Typography>
+              <IconButton onClick={() => setSidebarOpen(false)} sx={{ color: "white" }}>
+                <CloseIcon />
+              </IconButton>
+            </div>
+            <nav className="flex-grow">
+            <Link
+              to="/dashboard"
+              onClick={() => setSidebarOpen(false)}
+                className={`flex items-center gap-4 p-3 rounded-lg transition-all duration-200 ease-in-out ${
+                  location.pathname.includes("/dashboard")
+                    ? "bg-white/20 text-white"
+                    : "text-purple-200 hover:bg-white/10 hover:text-white"
+                }`}
             >
-              &times;
-            </button>
-            <Link to="/dashboard" className="mb-4 text-lg font-semibold text-[#5b21b6]" onClick={() => setSidebarOpen(false)}>
-              Dashboard
+                <DashboardIcon />
+                <Typography variant="body1" sx={{ fontWeight: "600" }}>Dashboard</Typography>
             </Link>
-            <Link to="/tasks" className="mb-4 text-lg font-semibold text-[#5b21b6]" onClick={() => setSidebarOpen(false)}>
-              Tasks
-            </Link>
-            <Link to="/profile" className="mb-4 text-lg font-semibold text-[#5b21b6]" onClick={() => setSidebarOpen(false)}>
-              Profile
-            </Link>
+            </nav>
+            <div>
             <button
               onClick={() => {
                 logout();
                 setSidebarOpen(false);
               }}
-              className="mt-auto text-lg font-semibold text-[#5b21b6] hover:text-purple-800 transition-colors"
+                className="flex items-center gap-4 p-3 w-full rounded-lg text-purple-200 hover:bg-white/10 hover:text-white transition-all duration-200 ease-in-out"
             >
-              Logout
+                <LogoutIcon />
+                <Typography variant="body1" sx={{ fontWeight: "600" }}>Logout</Typography>
             </button>
+            </div>
           </div>
-          <div
-            className="flex-1 bg-black bg-opacity-40"
-            onClick={() => setSidebarOpen(false)}
-          />
+          <div className="flex-1 bg-black/50" onClick={() => setSidebarOpen(false)} />
         </div>
       )}
     </>

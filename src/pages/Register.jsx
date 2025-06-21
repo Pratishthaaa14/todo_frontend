@@ -308,7 +308,7 @@ const Register = () => {
               <Link to="/login" className="text-[#4299e1] hover:text-[#3182ce] transition duration-150 ease-in-out">
                 Sign in
               </Link>
-            </Typography>
+              </Typography>
           </Box>
         </Box>
       </Box>

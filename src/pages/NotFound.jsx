@@ -1,59 +1,65 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Box, Typography, Button, Container } from '@mui/material';
+import { Box, Typography, Button, Paper } from '@mui/material';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
 const NotFound = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-[#F5F8FF]">
-      <Box
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%)',
+        p: 4,
+      }}
+    >
+      <Paper
+        elevation={6}
         sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
+          p: { xs: 3, sm: 5 },
           textAlign: 'center',
-          gap: 3,
-          bgcolor: 'background.paper',
-          p: 8,
           borderRadius: '16px',
-          boxShadow: '0px 10px 20px rgba(0, 0, 0, 0.1)',
           maxWidth: '500px',
           width: '100%',
+          border: '1px solid #d8b4fe',
         }}
       >
-        <Typography variant="h1" component="h1" gutterBottom sx={{ fontSize: '6rem', fontWeight: 700, color: '#EF4444' }}>
-          404
+        <ErrorOutlineIcon sx={{ fontSize: '6rem', color: '#a855f7', mb: 2 }} />
+        <Typography variant="h3" component="h1" sx={{ fontWeight: 700, color: '#5b21b6', mb: 1 }}>
+          404 - Page Not Found
         </Typography>
-        <Typography variant="h4" component="h2" gutterBottom sx={{ fontWeight: 600, color: '#333' }}>
-          Page Not Found
+        <Typography variant="h6" sx={{ color: '#7e22ce', mb: 3 }}>
+          Oops! The page you're looking for has ventured into the unknown.
         </Typography>
-        <Typography variant="body1" color="text.secondary" paragraph sx={{ color: '#6B7280' }}>
-          The page you are looking for doesn't exist.
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+          It seems the page you were trying to reach doesn't exist or may have been moved.
         </Typography>
-        <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
-          <Button
-            variant="contained"
-            onClick={() => navigate(user ? '/dashboard' : '/login')}
-            sx={{
-              bgcolor: '#FF6767',
-              color: 'white',
-              fontSize: '1rem',
-              fontWeight: 600,
-              borderRadius: '8px',
-              padding: '12px 24px',
-              '&:hover': {
-                bgcolor: '#DC2626',
-              },
-            }}
-          >
-            {user ? 'Go to Dashboard' : 'Sign In'}
-          </Button>
-        </Box>
-      </Box>
-    </div>
+        <Button
+          variant="contained"
+          onClick={() => navigate(user ? '/dashboard' : '/login')}
+          sx={{
+            bgcolor: '#7c3aed',
+            color: 'white',
+            fontWeight: 600,
+            borderRadius: '9999px',
+            px: 4,
+            py: 1.5,
+            textTransform: 'none',
+            fontSize: '1rem',
+            '&:hover': {
+              bgcolor: '#6d28d9',
+            },
+          }}
+        >
+          {user ? 'Return to Dashboard' : 'Back to Login'}
+        </Button>
+      </Paper>
+    </Box>
   );
 };
 

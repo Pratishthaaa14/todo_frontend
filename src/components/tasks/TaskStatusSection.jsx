@@ -92,7 +92,7 @@ const TaskStatusSection = ({ tasks, isLoading, error }) => {
     <Box sx={{ border: '2px solid black', borderRadius: 0, p: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
         <DonutLargeIcon sx={{ color: '#5b21b6', fontSize: 28, mr: 1.5 }} />
-        <Typography variant="h5" sx={{ fontWeight: 700, color: '#5b21b6' }}>Task Status</Typography>
+        <Typography variant="h5" sx={{ fontWeight: 700, color: '#5b21b6' }}>Tasks Progress</Typography>
       </Box>
 
       <Box
