@@ -279,9 +279,20 @@ const Header = ({
                 )}
               </div>
 
-              <Avatar sx={{ bgcolor: '#7c3aed', color: '#ffffff', fontWeight: 'bold' }}>
-                {user?.name?.charAt(0)?.toUpperCase() || 'U'}
-              </Avatar>
+              {/* <Avatar
+                sx={{
+                  bgcolor: '#5b21b6',
+                  color: 'white',
+                  width: 48,
+                  height: 48,
+                  cursor: 'pointer',
+                  fontSize: '1.25rem',
+                  fontWeight: 600,
+                }}
+                onClick={() => navigate("/profile")}
+              >
+                {user?.name ? user.name.charAt(0).toUpperCase() : (user?.email ? user.email.charAt(0).toUpperCase() : 'U')}
+              </Avatar> */}
 
               <IconButton
                 onClick={() => setSidebarOpen(true)}

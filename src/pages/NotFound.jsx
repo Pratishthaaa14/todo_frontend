@@ -8,12 +8,12 @@ const NotFound = () => {
   const { user } = useAuth();
 
   return (
-    <Box
-      sx={{
+      <Box
+        sx={{
         minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
         background: 'linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%)',
         p: 4,
       }}
@@ -39,27 +39,27 @@ const NotFound = () => {
         <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
           It seems the page you were trying to reach doesn't exist or may have been moved.
         </Typography>
-        <Button
-          variant="contained"
-          onClick={() => navigate(user ? '/dashboard' : '/login')}
-          sx={{
+          <Button
+            variant="contained"
+            onClick={() => navigate(user ? '/dashboard' : '/login')}
+            sx={{
             bgcolor: '#7c3aed',
-            color: 'white',
+              color: 'white',
             fontWeight: 600,
             borderRadius: '9999px',
             px: 4,
             py: 1.5,
             textTransform: 'none',
-            fontSize: '1rem',
-            '&:hover': {
+              fontSize: '1rem',
+              '&:hover': {
               bgcolor: '#6d28d9',
-            },
-          }}
-        >
+              },
+            }}
+          >
           {user ? 'Return to Dashboard' : 'Back to Login'}
-        </Button>
+          </Button>
       </Paper>
-    </Box>
+      </Box>
   );
 };
 

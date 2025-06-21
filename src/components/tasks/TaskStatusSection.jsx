@@ -89,10 +89,9 @@ const TaskStatusSection = ({ tasks, isLoading, error }) => {
   }
 
   return (
-    <Box sx={{ border: '2px solid black', borderRadius: 0, p: 3 }}>
+    <Box sx={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '12px', p: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
-        <DonutLargeIcon sx={{ color: '#5b21b6', fontSize: 28, mr: 1.5 }} />
-        <Typography variant="h5" sx={{ fontWeight: 700, color: '#5b21b6' }}>Tasks Progress</Typography>
+        <Typography variant="h5" sx={{ fontWeight: 700, color: '#1f2937' }}>Task Status</Typography>
       </Box>
 
       <Box
@@ -104,9 +103,9 @@ const TaskStatusSection = ({ tasks, isLoading, error }) => {
           gap: { xs: 4, sm: 2 },
         }}
       >
-        {renderStatusCircle(completedPercentage, 'Completed', '#16a34a')}
-        {renderStatusCircle(inProgressPercentage, 'In Progress', '#3b82f6')}
-        {renderStatusCircle(notStartedPercentage, 'Not Started', '#ef4444')}
+        {renderStatusCircle(completedPercentage, 'Completed', '#10b981')}
+        {renderStatusCircle(inProgressPercentage, 'In Progress', '#6366f1')}
+        {renderStatusCircle(notStartedPercentage, 'Not Started', '#f59e0b')}
       </Box>
     </Box>
   );
